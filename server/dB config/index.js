@@ -1,12 +1,9 @@
 
 
 const mongoose = require('mongoose');
-const express = require('express')
-
-const routees =express.Router()
 
 const DATABASE_URL =()=>{
-    return mongoose.connect('mongodb+srv://E-commerceBackend:' + process.env.DB_PASS + '@cluster0.7ooynjm.mongodb.net/E-commerceBackend?appName=Cluster0')
+    return mongoose.connect(process.env.DB_URL)
     .then(() => console.log(' mongo db Connected!'));
 }
 
