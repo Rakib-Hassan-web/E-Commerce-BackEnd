@@ -1,9 +1,10 @@
 const express = require('express')
+const DATABASE_URL = require('./dB config')
 const app = express()
-
+require('dotenv').config()
 app.use(express.json())
 
-
+DATABASE_URL()
 
 
 app.listen(8000, () => {
@@ -11,7 +12,5 @@ app.listen(8000, () => {
 })
 
 
-const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://E-commerceBackend:E-commerceBackend@cluster0.7ooynjm.mongodb.net/E-commerceBackend?appName=Cluster0')
-  .then(() => console.log(' mongo db Connected!'));
+
