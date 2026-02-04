@@ -2,28 +2,55 @@ const mongoose = require('mongoose')
 
 
 const userSchema = new mongoose.Schema({
-    FullName: {
+    fullName: {
         type: String,
         require: true,
     },
-    Email: {
+    email: {
         type: String,
         require: true,
         unique: true
     },
-    Password: {
+    password: {
         type: String,
         require: true,
         
     },
-    Phone:{
+    phone:{
         type:String
     },
-    Role:{
+    role:{
         type:String,
         default:"user",
         enum : ["user" , "admin" ,]
+    },
+    isverified: false,
+
+    otp:{
+        type:Number,
+        default:null
+    },
+    otpExpires:{
+        type:Date,
     }
-})
+
+},
+{timestamps:true})
+
+
+userSchema.pre("save", async function () {
+  const user = this;
+  if (!user.isModified("password")) {
+    return;
+  }
+
+  try {
+    user.password = await bcrypt.hash(user.password, 10);
+  } catch (err) {}
+});
+
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 module.exports =mongoose.model( "User" ,userSchema)
