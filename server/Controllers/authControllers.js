@@ -1,3 +1,4 @@
+const userSchema = require("../models/userSchema")
 const { isValidEmail, isValidPassword } = require("../services/validation")
 
 
@@ -12,6 +13,19 @@ const { isValidEmail, isValidPassword } = require("../services/validation")
     if(!isValidEmail(email)) return res.status(400).send({message : " Invalid Email"})
    if(!password ) return res.status(400).send({message : " password is Required"})
     if(!isValidPassword(password)) return res.status(400).send({message : " Invalid Password"})
+
+        const existinguser = await userSchema.findOne({email})
+
+    if(existinguser) return res.status(400).send({message : "User Already Exists"})
+
+    const newUser = new userSchema({
+        fullName,
+        email,
+        password,
+        phone
+    })
+
+    await newUser.save()
 
     res.status(201).send({message : "User Registered Successfully"})
         
