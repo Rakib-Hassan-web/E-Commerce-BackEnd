@@ -20,7 +20,7 @@ const { isValidEmail, isValidPassword } = require("../services/validation")
 
     if(existinguser) return res.status(400).send({message : "User Already Exists"})
 
-        const otp= generateOTP()
+        const otp =generateOTP()
     const newUser = new userSchema({
         fullName,
         email,
@@ -30,9 +30,9 @@ const { isValidEmail, isValidPassword } = require("../services/validation")
         otpExpires:  new Date(Date.now() + 2 * 60 * 1000)
     })
   
-  sendEmail({email ,subject:"Verify Email",otp})
+  
 
-
+await sendEmail({email , subject:"Email Verification" , otp })
 
     await newUser.save()
 
