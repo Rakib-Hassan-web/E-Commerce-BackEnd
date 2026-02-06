@@ -6,17 +6,17 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: "rakibhassan.web@gmail.com",
-    pass: process.env.APP_PASS, 
+    pass: "vrau iunk tijo amcf" ,
   },
 });
 
-const sendEmail = async ({ email, subject, otp }) => {
+const sendEmail = async ({ email, subject, otp,template }) => {
   try {
     await transporter.sendMail({
       from: '"E-Commerce" <rakibhassan.web@gmail.com>',
       to: email,
       subject,
-      html: `<h3>Your OTP Code</h3><p><b>${otp}</b></p>`,
+      html: template({  otp }),
     });
 
     console.log("Email sent successfully");
