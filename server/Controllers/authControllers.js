@@ -59,13 +59,20 @@ const verifyOTP = async (req,res)=>{
 
     const user = await userSchema.findOne({
       email,
+       otp: Number(otp),
       otpExpires: { $gt: new Date()},
       isverified:false,
     })
 
-  if(!user) return res.status(400).send({ message: "Invalid Request" })
+  if(!user) return res.status(400).send({ message: "Invalid or Expired OTP" })
 
-    
+     user.isverified=true
+     user.otp=null
+     user.otpExpires=null
+     await user.save()
+  
+
+     res.status(200).send({ message: "OTP Verified Successfully" })
 
 
 }
