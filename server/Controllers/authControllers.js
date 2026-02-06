@@ -4,7 +4,7 @@ const emailtemplate = require("../services/emailTemplate")
 const { generateOTP } = require("../services/helpers")
 const { isValidEmail, isValidPassword } = require("../services/validation")
 
-
+// -----------reg--------------
 const RegisterUSer = async (req, res) => {
   try {
     const { fullName, email, password, phone } = req.body;
@@ -29,7 +29,7 @@ const RegisterUSer = async (req, res) => {
       otpExpires: new Date(Date.now() + 2 * 60 * 1000),
     });
 
-    await newUser.save(); // ✅ save first
+    await newUser.save(); 
 
     await sendEmail({
       email,
@@ -48,6 +48,28 @@ const RegisterUSer = async (req, res) => {
 };
 
 
+// -----------verifyOTP--------------
+
+const verifyOTP = async (req,res)=>{
+
+  const{ otp ,email}=req.body
+
+  if(!otp) return res.status(400).send({ message: "OTP is required"})
+  if(!email) return res.status(400).send({ message: "Email is required"})
+
+    const user = await userSchema.findOne({
+      email,
+      otpExpires: { $gt: new Date()},
+      isverified:false,
+    })
+
+  if(!user) return res.status(400).send({ message: "Invalid Request" })
+
+    
+
+
+}
+
  
 
- module.exports={RegisterUSer}
+ module.exports={RegisterUSer,verifyOTP}
