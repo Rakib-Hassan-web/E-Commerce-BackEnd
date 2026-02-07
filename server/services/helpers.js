@@ -6,4 +6,9 @@ const generateOTP = () => {
 
 
 
-module.exports= {generateOTP}
+const GenerateACCTkn=()=>{
+  
+}
+
+
+module.exports= {generateOTP, GenerateACCTkn}
