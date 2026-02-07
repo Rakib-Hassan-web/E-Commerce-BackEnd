@@ -4,7 +4,9 @@ const {
 } = require("../services/emailServices")
 const emailtemplate = require("../services/emailTemplate")
 const {
-  generateOTP
+  generateOTP,
+  GenerateACCTkn,
+  GenerateREFR_Tkn
 } = require("../services/helpers")
 const {
   isValidEmail,
@@ -206,12 +208,22 @@ const LoginUser = async( req,res)=> {
 
     if (!Pass_Match) return res.status(400).send({message: "Wrong Password"})
 
+    const ACC_TKN =  GenerateACCTkn(user)
+    const REF_TKN =  GenerateREFR_Tkn (user)
+
+      console.log(ACC_TKN);
+      console.log("REF_TKN=" ,REF_TKN);
+      
+
 
   res.status(200).send({message: "Login Successful", })
+
 
     
   } catch (error) {
   res.status(500).send({ message: "Internal Server Error" });
+  console.log(error);
+  
   }
 }
 

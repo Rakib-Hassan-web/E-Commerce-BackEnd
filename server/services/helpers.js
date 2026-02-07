@@ -1,3 +1,5 @@
+var jwt = require('jsonwebtoken');
+
 // ----------------otp Genarator----------------
 
 const generateOTP = () => {
@@ -5,10 +7,30 @@ const generateOTP = () => {
 };
 
 
+// ----------acc_token Generate---------------
 
-const GenerateACCTkn=()=>{
-  
+const GenerateACCTkn=(user)=>{
+  return jwt.sign({
+  data: {
+    _id : user._id,
+    email:user.email,
+    role:user.role
+  }
+}, process.env.JWT_SEC , { expiresIn: '1h' });
+}
+
+ // ----------refresh_token Generate---------------
+
+const GenerateREFR_Tkn=(user)=>{
+  return jwt.sign({
+  data: {
+    _id : user._id,
+    email:user.email,
+    role:user.role
+  }
+}, process.env.JWT_SEC , { expiresIn: '10d' });
 }
 
 
-module.exports= {generateOTP, GenerateACCTkn}
+
+module.exports= {generateOTP, GenerateACCTkn, GenerateREFR_Tkn}
