@@ -242,6 +242,8 @@ const LoginUser = async( req,res)=> {
 }
 
 
+//-------------------forget pass-------------
+
 
 
 module.exports = {
