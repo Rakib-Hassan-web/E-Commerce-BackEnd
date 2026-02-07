@@ -51,7 +51,7 @@ const RegisterUSer = async (req, res) => {
 // -----------verifyOTP--------------
 
 const verifyOTP = async (req,res)=>{
-
+ try {
   const{ otp ,email}=req.body
 
   if(!otp) return res.status(400).send({ message: "OTP is required"})
@@ -74,9 +74,78 @@ const verifyOTP = async (req,res)=>{
 
      res.status(200).send({ message: "OTP Verified Successfully" })
 
+  
+ } catch (error) {
+  
+  res.status(500).send({ message: "Internal Server Error" });
+ }
 
 }
 
+
+// ------------resendOTP-------------
+
+const resendOTP = async (req , res)=>{
+  try {
+    // const { email } = req.body;
+    // if (!email) return res.status(400).send({ message: "Email is required" });
+
+    // const user = await userSchema.findOne({ email });
+    // if (!user) return res.status(400).send({ message: "User not found" });
+
+    // const otp = generateOTP();
+
+    // user.otp = otp;
+    // user.otpExpires = new Date(Date.now() + 2 * 60 * 1000);
+    // await user.save();
+
+    // await sendEmail({
+    //   email,
+    //   subject: "Resend OTP",
+    //   otp,
+    //   template: emailtemplate,
+     
+    // });
+
+    // res.status(200).send({ message: "OTP Resent Successfully" });
+
+
+
+
+   const {email} = req.body
+
+if (!email) return res.status(400).send({ message: "Email is required" });
+
+
+ const user = await userSchema.findOne({
+      email,
+      isverified:false,
+    })
+  if(!user) return res.status(400).send({ message: "Invalid or Unverified User" })
+
+    const otp = generateOTP();
+     user.otp= otp
+     user.otpExpires= new Date(Date.now() + 2 * 60 * 1000)
+
+       await user.save(); 
+
+    await sendEmail({
+      email,
+      subject: "Email Verification",
+      otp,
+      template: emailtemplate,
+     
+    });
+
+    res.status(201).send({ message: "OTP Resent Successfully" });
+
+
+
+  } catch (error) {
+  res.status(500).send({ message: "Internal Server Error" });
+    
+  }
+}
  
 
- module.exports={RegisterUSer,verifyOTP}
+ module.exports={RegisterUSer,verifyOTP,resendOTP}
