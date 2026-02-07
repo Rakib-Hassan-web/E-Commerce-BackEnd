@@ -181,11 +181,46 @@ const resendOTP = async (req, res) => {
 // ------------login------------
 
 
+const LoginUser = async( req,res)=> {
+  try {
+
+    const {email ,password} = req.body;
+
+    
+
+ if (!email) return res.status(400).send({message: "email is Required" });
+ if (!isValidEmail(email)) return res.status(400).send({message: "Invalid Email" });
+
+    if (!password) return res.status(400).send({ message: "password is Required" });
+ if (!isValidPassword(password)) return res.status(400).send({ message: "Invalid Password"});
+
+
+
+ const user = await userSchema.findOne({email})
+
+   if (!user) return res.status(400).send({
+      message: "User Not Registered"
+    });
+
+    const Pass_Match = await user.comparePassword(password)
+
+    if (!Pass_Match) return res.status(400).send({message: "Wrong Password"})
+
+
+  res.status(200).send({message: "Login Successful", })
+
+    
+  } catch (error) {
+  res.status(500).send({ message: "Internal Server Error" });
+  }
+}
+
 
 
 
 module.exports = {
   RegisterUSer,
   verifyOTP,
-  resendOTP
+  resendOTP,
+  LoginUser
 }
