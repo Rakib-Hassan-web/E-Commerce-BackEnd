@@ -32,5 +32,14 @@ const GenerateREFR_Tkn=(user)=>{
 }
 
 
+const verifytoken = (token)=>{
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SEC)
+    return decoded
+  } catch (error) {
+     return null
+  }
+}
 
-module.exports= {generateOTP, GenerateACCTkn, GenerateREFR_Tkn}
+
+module.exports= {generateOTP, GenerateACCTkn, GenerateREFR_Tkn, verifytoken}
