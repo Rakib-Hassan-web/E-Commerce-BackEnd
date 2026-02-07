@@ -214,6 +214,8 @@ const LoginUser = async( req,res)=> {
       console.log(ACC_TKN);
       console.log("REF_TKN=" ,REF_TKN);
       
+      res.cookie( "X-AS-Token" ,ACC_TKN)
+      res.cookie( "X-RF-Token" ,REF_TKN)
 
 
   res.status(200).send({message: "Login Successful", })
