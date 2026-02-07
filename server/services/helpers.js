@@ -11,11 +11,11 @@ const generateOTP = () => {
 
 const GenerateACCTkn=(user)=>{
   return jwt.sign({
-  data: {
+ 
     _id : user._id,
     email:user.email,
     role:user.role
-  }
+
 }, process.env.JWT_SEC , { expiresIn: '1h' });
 }
 
@@ -23,12 +23,12 @@ const GenerateACCTkn=(user)=>{
 
 const GenerateREFR_Tkn=(user)=>{
   return jwt.sign({
-  data: {
+
     _id : user._id,
     email:user.email,
     role:user.role
-  }
-}, process.env.JWT_SEC , { expiresIn: '10d' });
+}
+, process.env.JWT_SEC , { expiresIn: '10d' });
 }
 
 

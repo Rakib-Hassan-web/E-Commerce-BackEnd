@@ -211,8 +211,6 @@ const LoginUser = async( req,res)=> {
     const ACC_TKN =  GenerateACCTkn(user)
     const REF_TKN =  GenerateREFR_Tkn (user)
 
-      console.log(ACC_TKN);
-      console.log("REF_TKN=" ,REF_TKN);
       
       res.cookie( "X-AS-Token" ,ACC_TKN)
       res.cookie( "X-RF-Token" ,REF_TKN)
