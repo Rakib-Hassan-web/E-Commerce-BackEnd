@@ -207,6 +207,7 @@ const LoginUser = async( req,res)=> {
     const Pass_Match = await user.comparePassword(password)
 
     if (!Pass_Match) return res.status(400).send({message: "Wrong Password"})
+    if (!user.isverified) return res.status(400).send({message: "User Not Verified"})
 
     const ACC_TKN =  GenerateACCTkn(user)
     const REF_TKN =  GenerateREFR_Tkn (user)
@@ -214,6 +215,19 @@ const LoginUser = async( req,res)=> {
       
       res.cookie( "X-AS-Token" ,ACC_TKN)
       res.cookie( "X-RF-Token" ,REF_TKN)
+
+    res.cookie('X-AS-Token', ACC_TKN, {
+     httpOnly: false,
+     secure: false,   
+     maxAge:3600000
+     });
+
+      res.cookie('X-RF-Token', REF_TKN, {
+     httpOnly: false,
+     secure: false,   
+     maxAge:864000000
+     });
+
 
 
   res.status(200).send({message: "Login Successful", })
