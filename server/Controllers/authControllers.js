@@ -298,6 +298,13 @@ const GetUserProfile = async (req, res) => {
 
 const userID = await userSchema.findById(req.user._id).select(" -password -otp -otpExpires -resetExpire -resetPassToken")
 
+
+if(!userID) return res.status(404).send({message: "user not found"})
+
+res.status(200).send({message: "user profile fetched successfully", user: userID})
+
+
+
 }
 
 
