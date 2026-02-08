@@ -343,4 +343,5 @@ module.exports = {
   LoginUser,
   forgetpass,
   GetUserProfile,
+  updateUserProfile,
 }

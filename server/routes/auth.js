@@ -1,6 +1,6 @@
 
 const express =require('express')
-const { RegisterUSer, verifyOTP, resendOTP, LoginUser, forgetpass, GetUserProfile } = require('../Controllers/authControllers')
+const { RegisterUSer, verifyOTP, resendOTP, LoginUser, forgetpass, GetUserProfile, updateUserProfile } = require('../Controllers/authControllers')
 const authMiddleware = require('../middleware/authMiddleware')
 
 
@@ -14,6 +14,7 @@ routee.post("/resendotp" ,  resendOTP)
 routee.post("/login" ,LoginUser)
 routee.post("/forgetpass" ,forgetpass)
 routee.get("/getprofile",authMiddleware ,GetUserProfile)
+routee.put("/updateprofile",authMiddleware ,updateUserProfile)
 
 
 module.exports=routee
