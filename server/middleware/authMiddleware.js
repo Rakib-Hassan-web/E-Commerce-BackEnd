@@ -1,8 +1,9 @@
 const { verifytoken } = require("../services/helpers")
 
-try {
-    const authMiddleware = ( req, res, next)=>{
-    const token = req.cookies["X-AS-Token"]
+
+    const authMiddleware = ( req, res, next)=>{ 
+
+        try {  const token = req.cookies["X-AS-Token"]
  
     if(!token) return res.status(401).send({message : "Invalid Request"})
     const decoded = verifytoken(token)
@@ -11,11 +12,15 @@ try {
   
         req.user =decoded
         next()
+            
+        } catch (error) {
+            res.status(500).send({message : "Internal Server Error"})
+        }
+    }
+  
 
 
-}
-} catch (error) {
-    res.status(500).send({message : "Internal Server Error"})
-}
+
+
 
 module.exports= authMiddleware

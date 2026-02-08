@@ -10,13 +10,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = async ({ email, subject, otp,template }) => {
+const sendEmail = async ({ email, subject, otp,template ,forgettemp ,fullName }) => {
   try {
     await transporter.sendMail({
       from: '"E-Commerce" <rakibhassan.web@gmail.com>',
       to: email,
       subject,
-      html: template({  otp }),
+      html: template ? template({  otp }) : forgettemp({  otp,fullName }),
     });
 
     console.log("Email sent successfully");

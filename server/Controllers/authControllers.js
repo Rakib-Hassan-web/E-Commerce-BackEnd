@@ -6,7 +6,9 @@ const emailtemplate = require("../services/emailTemplate")
 const {
   generateOTP,
   GenerateACCTkn,
-  GenerateREFR_Tkn
+  GenerateREFR_Tkn,
+  GenerateFORGET_Tkn,
+  generateResetPassToken
 } = require("../services/helpers")
 const {
   isValidEmail,
@@ -245,10 +247,70 @@ const LoginUser = async( req,res)=> {
 //-------------------forget pass-------------
 
 
+const forgetpass = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).send({ message: "Email is required" });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).send({ message: "Invalid Email" });
+    }
+
+    const user = await userSchema.findOne({ email });
+    if (!user) {
+      return res.status(400).send({ message: "User Not Registered" });
+    }
+
+     const { resetToken, hashedToken } = generateResetPassToken();
+    user.resetPassToken = hashedToken;
+    user.resetExpire = Date.now() + 2 * 60 * 1000;
+    await user.save();
+    const RESET_PASSWORD_LINK = `${process.env.CLIENT_URL || "http://localhost:3000"
+      }/auth/resetpass/${resetToken}`;
+    sendEmail({
+      email,
+      subject: "Reset Your Password",
+      otp: RESET_PASSWORD_LINK,
+      template: emailtemplate.forgetPassTemp,
+      fullName: user.fullName
+    });
+
+    res.status(200).send({
+      message: "Forget password email sent successfully"
+    });
+
+  } catch (error) {
+    console.error("Forget password error:", error);
+    res.status(500).send({
+      message: "Failed to send reset email",
+      error: error.message
+    });
+  }
+};
+
+// --------------user Get profile-------------
+
+const GetUserProfile = async (req, res) => {
+
+
+const userID = await userSchema.findById(req.user._id).select(" -password -otp -otpExpires -resetExpire -resetPassToken")
+
+
+if(!userID) return res.status(404).send({message: "user not found"})
+
+}
+
+
+
 
 module.exports = {
   RegisterUSer,
   verifyOTP,
   resendOTP,
-  LoginUser
+  LoginUser,
+  forgetpass,
+  GetUserProfile,
 }
