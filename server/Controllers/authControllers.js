@@ -328,6 +328,7 @@ try {
 
     console.log("avatar =>", req.file);
     
+    return
 
     // if(phone) Fields.phone =phone;
     // if(avatar) Fields.avatar =avatar;
