@@ -322,10 +322,20 @@ try {
 
     const {phone,avatar,fullName} = req.body;
     const userId = req.user._id;
- 
-    const user = await userSchema.findByIdAndUpdate( userId ,{phone,avatar,fullName})
 
-    res.status(200).send({message:"user profile updated successfully" ,user})
+    const Fields={}
+
+
+    console.log("avatar =>", req.file);
+    
+
+    // if(phone) Fields.phone =phone;
+    // if(avatar) Fields.avatar =avatar;
+    // if(fullName) Fields.fullName =fullName;
+ 
+    // const user = await userSchema.findByIdAndUpdate( userId ,Fields,{new:true}).select(" -password -otp -otpExpires -resetExpire -resetPassToken")
+
+    // res.status(200).send({message:"user profile updated successfully" ,user})
   
 } catch (error) {
   res.status(500).send({message: "Internal Server Error"})
