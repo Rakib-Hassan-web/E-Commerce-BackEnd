@@ -2,7 +2,8 @@
 const express =require('express')
 const { RegisterUSer, verifyOTP, resendOTP, LoginUser, forgetpass, GetUserProfile, updateUserProfile } = require('../Controllers/authControllers')
 const authMiddleware = require('../middleware/authMiddleware')
-const upload = require("../middleware/StorageMiddleware")
+const multer  = require('multer')
+const upload = multer()
 
 const routee =express.Router()
 
