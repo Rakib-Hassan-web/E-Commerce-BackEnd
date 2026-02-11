@@ -9,7 +9,8 @@ const {
   GenerateACCTkn,
   GenerateREFR_Tkn,
   GenerateFORGET_Tkn,
-  generateResetPassToken
+  generateResetPassToken,
+  verifyToken
 } = require("../services/helpers")
 const {
   isValidEmail,
@@ -350,6 +351,32 @@ catch (error) {
 
 
 
+// -----------refresh token---------------]
+
+const refreshAccessToken = async (req, res) => {
+  try {
+    const refreshToken =
+      req.cookies?.["X-RF-Token"] || req.headers.authorization;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Refresh token missing" });
+    }
+   
+    const decoded = verifyToken(refreshToken)
+    if(!decoded) return;
+    const accessToken = GenerateACCTkn(decoded)
+    res.cookie('X-AS-Token', accessToken, {
+     httpOnly: false,
+     secure: false,   
+     maxAge:3600000
+     }).send({ message:"access token refreshed successfully"});
+
+  } catch (error) {
+
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 module.exports = {
   RegisterUSer,
   verifyOTP,
@@ -358,4 +385,6 @@ module.exports = {
   forgetpass,
   GetUserProfile,
   updateUserProfile,
+  refreshAccessToken
+  
 }
