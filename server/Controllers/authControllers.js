@@ -1,4 +1,5 @@
 const userSchema = require("../models/userSchema")
+const { uplodecloudinary } = require("../services/cloudinaryServices")
 const {
   sendEmail
 } = require("../services/emailServices")
@@ -326,10 +327,11 @@ try {
     const Fields={}
 
 
-    console.log("avatar =>", req.file);
-    
-    return
+    const response =await uplodecloudinary(req.file)
 
+    console.log("avatar =>", response);
+    
+   
     // if(phone) Fields.phone =phone;
     // if(avatar) Fields.avatar =avatar;
     // if(fullName) Fields.fullName =fullName;
