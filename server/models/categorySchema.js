@@ -21,6 +21,6 @@ const CategorySchema = new mongoose.Schema({
         default: true
     }
 
-
-
 })
+
+module.exports = mongoose.model("Category" ,CategorySchema)
