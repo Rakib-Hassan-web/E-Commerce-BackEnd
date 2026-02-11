@@ -1,3 +1,4 @@
+const categorySchema = require("../models/categorySchema")
 
 // ------------role checker---------------
 const roleCheckMiddleware =(...roles)=>{
@@ -17,11 +18,12 @@ const roleCheckMiddleware =(...roles)=>{
 
 const GetAllCategories = async(req,res)=>{
     try {
-        
+        const categories = await categorySchema.find({})
+        res.status(200).send(categories)
     } catch (error) {
           res.status(500).send({message:"server error"})
     }
 }
 
 
-module.exports= roleCheckMiddleware
+module.exports= {roleCheckMiddleware, GetAllCategories}
