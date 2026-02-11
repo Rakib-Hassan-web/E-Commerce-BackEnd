@@ -317,39 +317,32 @@ res.status(200).send({message: "user profile fetched successfully", user: userID
 // -------------- update user profile-----------
 
 
-const updateUserProfile = async (req, res) => {
-  try {
-    const { phone, fullName } = req.body;
+const updateUserProfile = async ( req, res)=>{
+
+try {
+
+    const {phone,fullName} = req.body;
     const userId = req.user._id;
-const avatar = req.file
-    const Fields = {};
+    const avatar = req.file
+    const Fields={}
 
-    if (avatar) {
-      const response = await uplodecloudinary(avatar);
-      Fields.avatar = response.secure_url;
+    if(avatar) {
+      const response =await uplodecloudinary(avatar ,"avatar")
+     
+      Fields.avatar =response.secure_url;
     }
+    if(phone) Fields.phone =phone;
+    if(fullName) Fields.fullName =fullName;
 
-    if (phone) Fields.phone = phone;
-    if (fullName) Fields.fullName = fullName;
+    const user = await userSchema.findByIdAndUpdate( userId ,Fields,{new:true}).select(" -password -otp -otpExpires -resetExpire -resetPassToken")
 
-    if (Object.keys(Fields).length === 0) {
-      return res.status(400).send({ message: "No data to update" });
-    }
-
-    const user = await userSchema
-      .findByIdAndUpdate(userId, { $set: Fields }, { new: true })
-      .select("-password -otp -otpExpires -resetExpire -resetPassToken");
-
-    res.status(200).send({
-      message: "User profile updated successfully",
-      user,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
-  }
-};
-
+    res.status(200).send({message:"user profile updated successfully" ,user})
+  
+} 
+catch (error) {
+  res.status(500).send({message: "Internal Server Error"})
+}
+}
 
 
 
