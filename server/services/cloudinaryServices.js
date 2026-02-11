@@ -11,4 +11,9 @@ const cloudinary = require('cloudinary').v2;
 
  } 
 
-module.exports ={uplodecloudinary}
+
+ const deletfromCloudinary = async(public_id)=>{
+    return await cloudinary.uploader.destroy(public_id)
+ }
+
+module.exports ={uplodecloudinary,deletfromCloudinary}

@@ -1,5 +1,5 @@
 const userSchema = require("../models/userSchema")
-const { uplodecloudinary } = require("../services/cloudinaryServices")
+const { uplodecloudinary, deletfromCloudinary } = require("../services/cloudinaryServices")
 const {
   sendEmail
 } = require("../services/emailServices")
@@ -324,17 +324,21 @@ try {
     const {phone,fullName} = req.body;
     const userId = req.user._id;
     const avatar = req.file
-    const Fields={}
+  
+const user = await userSchema.findById(userId).select("-password -otp -otpExpires -resetExpire -resetPassToken")
 
     if(avatar) {
+       const imgPublicId = user.avatar.split("/").pop().split(".")[0];
+     deletfromCloudinary(`avatar/${imgPublicId}`);
       const response =await uplodecloudinary(avatar ,"avatar")
      
-      Fields.avatar =response.secure_url;
+      user.avatar =response.secure_url;
     }
-    if(phone) Fields.phone =phone;
-    if(fullName) Fields.fullName =fullName;
+    if(phone) user.phone =phone;
+    if(fullName) user.fullName =fullName;
 
-    const user = await userSchema.findByIdAndUpdate( userId ,Fields,{new:true}).select(" -password -otp -otpExpires -resetExpire -resetPassToken")
+    
+user.save()
 
     res.status(200).send({message:"user profile updated successfully" ,user})
   
