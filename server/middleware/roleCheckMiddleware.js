@@ -15,7 +15,13 @@ const roleCheckMiddleware =(...roles)=>{
    }
 }
 
-
+const GetAllCategories = async(req,res)=>{
+    try {
+        
+    } catch (error) {
+          res.status(500).send({message:"server error"})
+    }
+}
 
 
 module.exports= roleCheckMiddleware
