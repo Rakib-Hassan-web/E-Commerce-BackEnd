@@ -1,4 +1,5 @@
 const { uplodecloudinary } = require("../services/cloudinaryServices");
+const ENUM_SIZE = ["s", "m", "l", "xl", "2xl", "3xl"];
 
 const createNewProduct = async (req,res)=>{
     try {
@@ -14,6 +15,7 @@ const createNewProduct = async (req,res)=>{
         //  if (!thumbnail_IMG || thumbnail_IMG.length === 0) return res.status(400).send({message: "Thumbnail is Required" });
         //  if (!images || !Array.isArray(images)) return res.status(400).send({message: "images is Required and must be an array" });
 
+
         //      let imagesUrl = [];
 
         // if (Images_IMG) {
@@ -25,17 +27,21 @@ const createNewProduct = async (req,res)=>{
         //   console.log("imagesUrl" ,imagesUrl); 
 
 
-        console.log(Array.isArray(variants));
-
+    
         if (!Array.isArray(variants) || variants.length === 0) return  res.status(400).send({message: "Minimum 1 variant is required." });
         
       for (const element of variants) {
-        console.log(element);
         
         
         if(!element.sku) return res.status(400).send({message: "Each variant must have a SKU."});
+        if(!element.color) return res.status(400).send({message: "Each variant must have a color."});
+        if(!element.size) return res.status(400).send({message: "Each variant must have a size."});
+        if(!ENUM_SIZE.includes(element.size)) return res.status(400).send({message: " Invalid size."});
+        if(!element.stock || element.stock < 1) return res.status(400).send({message: "Each variant must have a valid stock value."});
         
-        
+        const ALL_Sku = variants.map(v=>v.sku)
+        if(ALL_Sku.includes(element.sku)) return res.status(400).send({message: "Duplicate SKU found."});
+        console.log(ALL_Sku);
       }
         
     } catch (error) {
