@@ -40,7 +40,7 @@ const createNewProduct = async (req,res)=>{
         if(!element.stock || element.stock < 1) return res.status(400).send({message: "Each variant must have a valid stock value."});
         
         const ALL_Sku = variants.map(v=>v.sku)
-        if(ALL_Sku.includes(element.sku)) return res.status(400).send({message: "Duplicate SKU found."});
+        if( new Set(ALL_Sku).size !== ALL_Sku.length) return res.status(400).send({message: "Duplicate SKU found."});
         console.log(ALL_Sku);
       }
         
