@@ -9,7 +9,47 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-  
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    category: {
+        type: mongoose.Types.ObjectId,
+        ref: "Category",
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    },
+    discountPercentage: {
+        type: Number,
+        default: 0
+    },
+    variants: [
+        {
+            sku: {
+                type: String,
+                required: true,
+                unique: true
+            },
+            color: {
+                type: String,
+                required: true
+            },
+            size: {
+                type: String,
+                required: true,
+                enum: ["s", "m", "l", "xl", "2xl", "3xl"]
+            },
+            stock: {
+                type: Number,
+                required: true,
+            },
+        }
+    ],
+    tags: [
         {
             type: String
         }
