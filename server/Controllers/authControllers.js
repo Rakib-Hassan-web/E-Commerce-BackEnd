@@ -358,7 +358,7 @@ const refreshAccessToken = async (req, res) => {
     const refreshToken =
       req.cookies?.["X-RF-Token"] || req.headers.authorization;
     if (!refreshToken) {
-      return res.status(401).json({ message: "Refresh token missing" });
+      return res.status(401).send({ message: "Refresh token missing" });
     }
    
     const decoded = verifyToken(refreshToken)
@@ -372,7 +372,7 @@ const refreshAccessToken = async (req, res) => {
 
   } catch (error) {
 
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).send({ message: "Server error" });
   }
 };
 

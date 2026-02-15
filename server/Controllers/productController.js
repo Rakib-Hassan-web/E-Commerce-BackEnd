@@ -18,13 +18,33 @@ const createNewProduct = async (req,res)=>{
         
 
 
-         if (!thumbnail || thumbnail?.length === 0) return res.status(400).send({message: "Thumbnail is Required" });
+       
+      
+         const varientdata = JSON.parse(variants)
+    
+       if (!Array.isArray(varientdata) || varientdata.length === 0) return  res.status(400).send({message: "Minimum 1 variant is required." });
+        
+      for (const element of varientdata) {
+        
+        
+        if(!element.sku) return res.status(400).send({message: "Each variant must have a SKU."});
+        if(!element.color) return res.status(400).send({message: "Each variant must have a color."});
+        if(!element.size) return res.status(400).send({message: "Each variant must have a size."});
+        if(!ENUM_SIZE.includes(element.size)) return res.status(400).send({message: " Invalid size."});
+        if(!element.stock || element.stock < 1) return res.status(400).send({message: "Each variant must have a valid stock value."});
+        
+        const ALL_Sku = varientdata.map(v=>v.sku)
+        if( new Set(ALL_Sku).size !== ALL_Sku.length) return res.status(400).send({message: "Duplicate SKU found."});
+        
+      }
+
+
+
+  if (!thumbnail || thumbnail?.length === 0) return res.status(400).send({message: "Thumbnail is Required" });
          if (images && images?.length > 4) return res.status(400).send({message: "You can upload images max 4" });
          const thumnailUrl = await uplodecloudinary(thumbnail[0], "products")
 
         if (!thumnailUrl) return res.status(400).send({message: "Failed to upload thumbnail" });
-
-
 
 
         let imagesUrl = [];
@@ -35,32 +55,17 @@ const createNewProduct = async (req,res)=>{
             imagesUrl = results.map(r => r.secure_url)
 
           }
-      
 
 
-    
-       if (!Array.isArray(variants) || variants.length === 0) return  res.status(400).send({message: "Minimum 1 variant is required." });
-        
-      for (const element of variants) {
-        
-        
-        if(!element.sku) return res.status(400).send({message: "Each variant must have a SKU."});
-        if(!element.color) return res.status(400).send({message: "Each variant must have a color."});
-        if(!element.size) return res.status(400).send({message: "Each variant must have a size."});
-        if(!ENUM_SIZE.includes(element.size)) return res.status(400).send({message: " Invalid size."});
-        if(!element.stock || element.stock < 1) return res.status(400).send({message: "Each variant must have a valid stock value."});
-        
-        const ALL_Sku = variants.map(v=>v.sku)
-        if( new Set(ALL_Sku).size !== ALL_Sku.length) return res.status(400).send({message: "Duplicate SKU found."});
-        console.log(ALL_Sku);
-      }
+
+
       const newProduct = new productSchema({
         title,
         slug,
         description,
         category,price,
         discountPercentage,
-        variants,
+        variants: varientdata,
         tags,
         thumbnail: thumnailUrl.secure_url,
         images: imagesUrl
