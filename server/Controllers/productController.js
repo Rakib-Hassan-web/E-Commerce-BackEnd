@@ -28,7 +28,9 @@ const createNewProduct = async (req,res)=>{
 
 
     
-  
+        if (!Array.isArray(variants) || variants.length === 0) return  res.status(400).send({message: "Minimum 1 variant is required." });
+        
+      for (const element of variants) {
         
         
         if(!element.sku) return res.status(400).send({message: "Each variant must have a SKU."});
