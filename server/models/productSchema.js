@@ -70,4 +70,6 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
+productSchema.index({ slug:1})
+
 module.exports = mongoose.model("product", productSchema)

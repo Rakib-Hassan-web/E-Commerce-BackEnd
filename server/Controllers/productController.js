@@ -12,6 +12,8 @@ const createNewProduct = async (req,res)=>{
         //  ------------- basic validations------------
          if (!title) return res.status(400).send({message: "title is Required" });
          if (!slug) return res.status(400).send({message: "slug is Required" });
+         const ExistingSlug = await productSchema.findOne({ slug:slug.toLowerCase().trim()})
+         if (ExistingSlug) return res.status(400).send({message: "slug already exists" });
          if (!description) return res.status(400).send({message: "description is Required" });
          if (!category) return res.status(400).send({message: "category is Required" });
          const ExistingCategory = await categorySchema.findById(category);
