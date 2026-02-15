@@ -54,8 +54,6 @@ const createNewProduct = async (req,res)=>{
         if( new Set(ALL_Sku).size !== ALL_Sku.length) return res.status(400).send({message: "Duplicate SKU found."});
         console.log(ALL_Sku);
       }
-
-
       const newProduct = new productSchema({
         title,
         slug,
