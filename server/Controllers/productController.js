@@ -8,6 +8,8 @@ const createNewProduct = async (req,res)=>{
         const {title,slug,description,category,price,discountPercentage,variants,tags} = req.body;
          const thumbnail =req.files?.thumbnail
          const images =req.files?.images
+
+        //  ------------- basic validations------------
          if (!title) return res.status(400).send({message: "title is Required" });
          if (!slug) return res.status(400).send({message: "slug is Required" });
          if (!description) return res.status(400).send({message: "description is Required" });
@@ -16,16 +18,11 @@ const createNewProduct = async (req,res)=>{
          if (!ExistingCategory) return res.status(400).send({message: "Invalid category" });
          if (!price) return res.status(400).send({message: "price is Required" });
         
+// ------------------variants validatoin-------------------
 
-
-       
-      
-         const varientdata = JSON.parse(variants)
-    
-       if (!Array.isArray(varientdata) || varientdata.length === 0) return  res.status(400).send({message: "Minimum 1 variant is required." });
-        
-      for (const element of varientdata) {
-        
+       const varientdata = JSON.parse(variants)
+       if (!Array.isArray(varientdata) || varientdata.length === 0) return  res.status(400).send({message: "Minimum 1 variant is required." }); 
+       for (const element of varientdata) {
         
         if(!element.sku) return res.status(400).send({message: "Each variant must have a SKU."});
         if(!element.color) return res.status(400).send({message: "Each variant must have a color."});
@@ -38,7 +35,7 @@ const createNewProduct = async (req,res)=>{
         
       }
 
-
+// -----------------thumbnail validation----------------
 
   if (!thumbnail || thumbnail?.length === 0) return res.status(400).send({message: "Thumbnail is Required" });
          if (images && images?.length > 4) return res.status(400).send({message: "You can upload images max 4" });
@@ -46,6 +43,7 @@ const createNewProduct = async (req,res)=>{
 
         if (!thumnailUrl) return res.status(400).send({message: "Failed to upload thumbnail" });
 
+// -------------images validation------------
 
         let imagesUrl = [];
 
@@ -56,12 +54,11 @@ const createNewProduct = async (req,res)=>{
 
           }
 
-
-
-
+    // ---------save to databsse--------
+    const formattedSlug = slug.toLowerCase().trim();
       const newProduct = new productSchema({
         title,
-        slug,
+        slug :formattedSlug,
         description,
         category,price,
         discountPercentage,
