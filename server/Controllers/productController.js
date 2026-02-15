@@ -1,3 +1,4 @@
+const categorySchema = require("../models/categorySchema");
 const { uplodecloudinary } = require("../services/cloudinaryServices");
 const ENUM_SIZE = ["s", "m", "l", "xl", "2xl", "3xl"];
 
@@ -10,10 +11,12 @@ const createNewProduct = async (req,res)=>{
          if (!slug) return res.status(400).send({message: "slug is Required" });
          if (!description) return res.status(400).send({message: "description is Required" });
          if (!category) return res.status(400).send({message: "category is Required" });
+         const ExistingCategory = await categorySchema.findById(category);
+           if (!ExistingCategory) return res.status(400).send({message: "Invalid category" });
            if (!price) return res.status(400).send({message: "price is Required" });
         
-        //  if (!thumbnail_IMG || thumbnail_IMG.length === 0) return res.status(400).send({message: "Thumbnail is Required" });
-        //  if (!images || !Array.isArray(images)) return res.status(400).send({message: "images is Required and must be an array" });
+         if (!thumbnail_IMG || thumbnail_IMG.length === 0) return res.status(400).send({message: "Thumbnail is Required" });
+         if (!images || !Array.isArray(images)) return res.status(400).send({message: "images is Required and must be an array" });
 
 
         //      let imagesUrl = [];
