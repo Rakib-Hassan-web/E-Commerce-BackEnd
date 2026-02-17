@@ -98,6 +98,7 @@ const category = req.query.category
   const totalPages = Math.ceil(totalProducts / limit);
   const products = await productSchema
       .find()
+      .populate("category" ,"name")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -110,10 +111,7 @@ const category = req.query.category
         limit,
         totalPages,
         hasNextPage:page <totalPages,
-        hasPrevPage:page>1
-
-        
-        
+        hasPrevPage:page>1  
       }
 
      }  ,200)
