@@ -73,8 +73,7 @@ const createNewProduct = async (req,res)=>{
       res.status(201).send({message: "Product created successfully", product: newProduct})
     } catch (error) {
       console.log(error);
-      
-  res.status(500).send({message: "Internal Server Error"})
+ 
     }
 }
 
