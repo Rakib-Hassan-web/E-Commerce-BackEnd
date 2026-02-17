@@ -11,40 +11,40 @@ const createNewProduct = async (req,res)=>{
          const images =req.files?.images
 
         //  ------------- basic validations------------
-         if (!title) return res.status(400).send({message: "title is Required" });
-         if (!slug) return res.status(400).send({message: "slug is Required" });
+         if (!title) return sendError(res, "title is Required", 400);
+         if (!slug) return sendError(res, "slug is Required", 400);
          const ExistingSlug = await productSchema.findOne({ slug:slug.toLowerCase().trim()})
-         if (ExistingSlug) return res.status(400).send({message: "slug already exists" });
-         if (!description) return res.status(400).send({message: "description is Required" });
-         if (!category) return res.status(400).send({message: "category is Required" });
+         if (ExistingSlug) return sendError(res, "slug already exists", 400);
+         if (!description) return sendError(res, "description is Required", 400);
+         if (!category) return sendError(res, "category is Required", 400);
          const ExistingCategory = await categorySchema.findById(category);
-         if (!ExistingCategory) return res.status(400).send({message: "Invalid category" });
-         if (!price) return res.status(400).send({message: "price is Required" });
+         if (!ExistingCategory) return sendError(res, "Invalid category", 400);
+         if (!price) return sendError(res, "price is Required", 400);
         
 // ------------------variants validatoin-------------------
 
        const varientdata = JSON.parse(variants)
-       if (!Array.isArray(varientdata) || varientdata.length === 0) return  res.status(400).send({message: "Minimum 1 variant is required." }); 
+       if (!Array.isArray(varientdata) || varientdata.length === 0) return  sendError(res, "Minimum 1 variant is required.", 400); 
        for (const element of varientdata) {
         
-        if(!element.sku) return res.status(400).send({message: "Each variant must have a SKU."});
-        if(!element.color) return res.status(400).send({message: "Each variant must have a color."});
-        if(!element.size) return res.status(400).send({message: "Each variant must have a size."});
-        if(!ENUM_SIZE.includes(element.size)) return res.status(400).send({message: " Invalid size."});
-        if(!element.stock || element.stock < 1) return res.status(400).send({message: "Each variant must have a valid stock value."});
+        if(!element.sku) return sendError(res, "Each variant must have a SKU.", 400);
+        if(!element.color) return sendError(res, "Each variant must have a color.", 400);
+        if(!element.size) return sendError(res, "Each variant must have a size.", 400);
+        if(!ENUM_SIZE.includes(element.size)) return sendError(res, "Invalid size.", 400);
+        if(!element.stock || element.stock < 1) return sendError(res, "Each variant must have a valid stock value.", 400);
         
         const ALL_Sku = varientdata.map(v=>v.sku)
-        if( new Set(ALL_Sku).size !== ALL_Sku.length) return res.status(400).send({message: "Duplicate SKU found."});
+        if( new Set(ALL_Sku).size !== ALL_Sku.length) return sendError(res, "Duplicate SKU found.", 400);
         
       }
 
 // -----------------thumbnail validation----------------
 
-  if (!thumbnail || thumbnail?.length === 0) return res.status(400).send({message: "Thumbnail is Required" });
-         if (images && images?.length > 4) return res.status(400).send({message: "You can upload images max 4" });
+  if (!thumbnail || thumbnail?.length === 0) return sendError(res, "Thumbnail is Required", 400);
+         if (images && images?.length > 4) return sendError(res, "You can upload images max 4", 400);
          const thumnailUrl = await uplodecloudinary(thumbnail[0], "products")
 
-        if (!thumnailUrl) return res.status(400).send({message: "Failed to upload thumbnail" });
+        if (!thumnailUrl) return sendError(res, "Failed to upload thumbnail", 400);
 
 // -------------images validation------------
 
@@ -71,11 +71,11 @@ const createNewProduct = async (req,res)=>{
         images: imagesUrl
       })
       await newProduct.save()
-      res.status(201).send({message: "Product created successfully", product: newProduct})
+      sendSuccess(res, "Product created successfully", newProduct, 201)
     } catch (error) {
       console.log(error);
       
-  res.status(500).send({message: "Internal Server Error"})
+  sendError(res, "Internal Server Error", 500)
     }
 }
 
@@ -86,7 +86,7 @@ const createNewProduct = async (req,res)=>{
 const getAllProducts = async( req,res)=>{
   try {
    const products = await productSchema.find()
-sendSuccess(res, "All products" ,products ,200)
+     sendSuccess(res, "All products" ,products ,200)
     
   } catch (error) {
    
