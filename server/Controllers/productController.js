@@ -84,10 +84,12 @@ const createNewProduct = async (req,res)=>{
 
 const getAllProducts = async( req,res)=>{
   try {
-    res.send("geta alll")
+   const products = await productSchema.find()
+   res.status(200).send({message:"all products" , products})
     
   } catch (error) {
-    
+    console.log(error);
+    res.status(500).send({message: "Internal Server Error"})
   }
 }
 module.exports ={createNewProduct,getAllProducts}
