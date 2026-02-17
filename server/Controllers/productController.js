@@ -84,6 +84,7 @@ const createNewProduct = async (req,res)=>{
 
 const getAllProducts = async( req,res)=>{
   try {
+    res.send("geta alll")
     
   } catch (error) {
     
