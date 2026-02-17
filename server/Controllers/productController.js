@@ -109,7 +109,8 @@ const category = req.query.category
         page,
         limit,
         totalPages,
-
+        hasNextPage:page <totalPages,
+        hasPrevPage:page>1
 
         
         
