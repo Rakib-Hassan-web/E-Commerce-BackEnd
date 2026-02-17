@@ -1,6 +1,7 @@
 const categorySchema = require("../models/categorySchema");
 const productSchema = require("../models/productSchema");
 const { uplodecloudinary } = require("../services/cloudinaryServices");
+const { sendError, sendSuccess } = require("../services/responseHandler");
 const ENUM_SIZE = ["s", "m", "l", "xl", "2xl", "3xl"];
 
 const createNewProduct = async (req,res)=>{
@@ -85,11 +86,11 @@ const createNewProduct = async (req,res)=>{
 const getAllProducts = async( req,res)=>{
   try {
    const products = await productSchema.find()
-   res.status(200).send({message:"all products" , products})
+sendSuccess(res, "All products" ,products ,200)
     
   } catch (error) {
-    console.log(error);
-    res.status(500).send({message: "Internal Server Error"})
+   
+   sendError(res,"server error" ,500 ,error)
   }
 }
 module.exports ={createNewProduct,getAllProducts}
