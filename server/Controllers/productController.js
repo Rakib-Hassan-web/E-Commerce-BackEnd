@@ -94,14 +94,35 @@ const category = req.query.category
 
 
 
+    const pipeline = [
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]
+
+
+    if (category) {
+      pipeline.push({
+        $match: {
+          "category.name": category,
+        },
+      });
+    }
+
+
   const totalProducts = await productSchema.countDocuments();
   const totalPages = Math.ceil(totalProducts / limit);
-  const products = await productSchema
-      .find()
-      .populate("category" ,"name")
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+  const products = await productSchema.aggregate(pipeline)
+     
 
      sendSuccess(res, "All products" ,{
       product:products,
