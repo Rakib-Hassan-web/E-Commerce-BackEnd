@@ -89,12 +89,33 @@ const getAllProducts = async( req,res)=>{
 const page = parseInt(req.query.page) || 1; 
 const limit = parseInt(req.query.limit) || 10; 
 const skip = (page - 1) * limit;
+const category = req.query.category
 
 
 
 
-   const products = await productSchema.find()
-     sendSuccess(res, "All products" ,products ,200)
+  const totalProducts = await productSchema.countDocuments();
+  const totalPages = Math.ceil(totalProducts / limit);
+  const products = await productSchema
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+     sendSuccess(res, "All products" ,{
+      product:products,
+      pagination:{
+        totalProducts,
+        page,
+        limit,
+        totalPages,
+
+
+        
+        
+      }
+
+     }  ,200)
     
   } catch (error) {
    
