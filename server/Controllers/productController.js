@@ -92,8 +92,6 @@ const skip = (page - 1) * limit;
 const category = req.query.category
 
 
-
-
     const pipeline = [
       {
         $lookup: {
@@ -110,17 +108,11 @@ const category = req.query.category
     ]
 
 
-    if (category) {
-      pipeline.push({
-        $match: {
-          "category.name": category,
-        },
-      });
-    }
-
-
+  
   const totalProducts = await productSchema.countDocuments();
   const totalPages = Math.ceil(totalProducts / limit);
+    if (category) { pipeline.push({  $match: { "category.name": category, },});
+    }
   const products = await productSchema.aggregate(pipeline)
      
 
@@ -135,11 +127,23 @@ const category = req.query.category
         hasPrevPage:page>1  
       }
 
-     }  ,200)
+     } ,200)
     
   } catch (error) {
    
    sendError(res,"server error" ,500 ,error)
   }
 }
+
+
+
+// --------------- get single product  details-----------------
+
+const singleProductDetails = async(req,res)=>{
+
+  
+
+}
+
+
 module.exports ={createNewProduct,getAllProducts}
