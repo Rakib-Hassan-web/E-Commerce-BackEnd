@@ -141,9 +141,11 @@ const category = req.query.category
 
 const singleProductDetails = async(req,res)=>{
 
-  console.log(req.params)
+  const {slug} = req.params
+
+  
 
 }
 
 
-module.exports ={createNewProduct,getAllProducts}
+module.exports ={createNewProduct,getAllProducts,singleProductDetails}
