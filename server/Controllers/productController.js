@@ -118,16 +118,7 @@ const category = req.query.category
      
 
      sendSuccess(res, "All products" ,{
-      product:products,
-      pagination:{
-        totalProducts,
-        page,
-        limit,
-        totalPages,
-        hasNextPage:page <totalPages,
-        hasPrevPage:page>1  
-      }
-
+   
      } ,200)
     
   } catch (error) {
