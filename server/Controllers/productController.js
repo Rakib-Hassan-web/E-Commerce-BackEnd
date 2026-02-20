@@ -144,7 +144,7 @@ const singleProductDetails = async(req,res)=>{
 
   const {slug} = req.params
 
-  const ProductDetails = await productSchema.findOne({slug })
+  const ProductDetails = await productSchema.findOne({slug , isActive:true})
 
 
   console.log(ProductDetails);
