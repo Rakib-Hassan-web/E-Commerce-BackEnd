@@ -144,11 +144,15 @@ const singleProductDetails = async(req,res)=>{
 
   const {slug} = req.params
 
-  const ProductDetails = await productSchema.findOne({slug , isActive:true})
+  const ProductDetails = await productSchema.findOne({slug , isActive:true}).populate("category" ,"name")
 
 
-  console.log(ProductDetails);
+  if(!ProductDetails) sendError(res ,"404 Not found" ,404)
+
+
+    sendSuccess(res ,"Details",ProductDetails ,200 )
   
+
 
 }
 
