@@ -101,7 +101,7 @@ const category = req.query.category
           as: "category",
         },
       },
-      { $unwind: "$category" },
+      { $unwind: "$category" ,name },
       { $sort: { createdAt: -1 } },
       { $skip: skip },
       { $limit: limit },
