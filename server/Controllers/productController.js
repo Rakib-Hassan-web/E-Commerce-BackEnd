@@ -4,6 +4,8 @@ const { uplodecloudinary } = require("../services/cloudinaryServices");
 const { sendError, sendSuccess } = require("../services/responseHandler");
 const ENUM_SIZE = ["s", "m", "l", "xl", "2xl", "3xl"];
 
+// ---------create new product------------------
+
 const createNewProduct = async (req,res)=>{
     try {
         const {title,slug,description,category,price,discountPercentage,variants,tags} = req.body;
@@ -80,7 +82,6 @@ const createNewProduct = async (req,res)=>{
 }
 
 
-
 // ---------get all  products -------------
 
 const getAllProducts = async( req,res)=>{
@@ -136,21 +137,26 @@ const category = req.query.category
   }
 }
 
-
-
-// --------------- get single product  details-----------------
+// -------- get single product  details----------
 
 const singleProductDetails = async(req,res)=>{
 
-  const {slug} = req.params
+try {
+    const {slug} = req.params
 
-  const ProductDetails = await productSchema.findOne({slug , isActive:true}).populate("category" ,"name")
+  const ProductDetails = await productSchema.findOne({slug , isActive:true})
+  .populate("category" ,"name")
+  .select("-isActive","__v")
 
 
   if(!ProductDetails) sendError(res ,"404 Not found" ,404)
 
 
-    sendSuccess(res ,"Details",ProductDetails ,200 )
+   sendSuccess(res ,"Details",ProductDetails ,200 )
+  
+} catch (error) {
+   sendError(res ,"Internal server Error" ,500)
+}
   
 
 
