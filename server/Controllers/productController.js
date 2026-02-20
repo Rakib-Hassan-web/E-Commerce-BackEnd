@@ -101,7 +101,7 @@ const category = req.query.category
           as: "category",
         },
       },
-      { $unwind: "$category" ,name },
+      { $unwind: "$category"  },
       { $sort: { createdAt: -1 } },
       { $skip: skip },
       { $limit: limit },
@@ -141,7 +141,7 @@ const category = req.query.category
 
 const singleProductDetails = async(req,res)=>{
 
-  
+  console.log(req.params)
 
 }
 
