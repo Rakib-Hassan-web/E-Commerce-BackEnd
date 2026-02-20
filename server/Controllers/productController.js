@@ -111,7 +111,14 @@ const category = req.query.category
 
   
   const totalProducts = await productSchema.countDocuments();
-  
+  const totalPages = Math.ceil(totalProducts / limit);
+    if (category) { pipeline.push({  $match: { "category.name": category, },});
+    }
+  const products = await productSchema.aggregate(pipeline)
+     
+
+     sendSuccess(res, "All products" ,{
+   
      } ,200)
     
   } catch (error) {
