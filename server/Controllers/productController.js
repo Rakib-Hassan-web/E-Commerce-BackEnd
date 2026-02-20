@@ -93,6 +93,7 @@ const category = req.query.category
 
 
     const pipeline = [
+      {  $match: { "isActive": true, },},
       {
         $lookup: {
           from: "categories",
@@ -143,6 +144,10 @@ const singleProductDetails = async(req,res)=>{
 
   const {slug} = req.params
 
+  const ProductDetails = await productSchema.findOne({slug })
+
+
+  console.log(ProductDetails);
   
 
 }
