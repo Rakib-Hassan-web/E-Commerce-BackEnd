@@ -11,7 +11,7 @@ const uplode = multer()
 routee.post("/create" ,authMiddleware, roleCheckMiddleware('admin'),uplode.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'images', maxCount: 4 }]),createNewProduct)
 routee.get("/allProducts" ,getAllProducts)
 routee.get("/:slug" ,singleProductDetails)
-routee.put("/update" ,updateProduct)
+routee.put("/update",authMiddleware ,roleCheckMiddleware('admin'),updateProduct)
 
 
 module.exports=routee
