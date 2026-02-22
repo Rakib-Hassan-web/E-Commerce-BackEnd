@@ -139,6 +139,8 @@ const category = req.query.category
 
 // -------- get single product  details----------
 
+
+
 const singleProductDetails = async(req,res)=>{
 
 try {
@@ -148,19 +150,19 @@ try {
   .populate("category" ,"name")
   .select("-isActive","__v")
 
-
   if(!ProductDetails) sendError(res ,"404 Not found" ,404)
-
 
    sendSuccess(res ,"Details",ProductDetails ,200 )
   
 } catch (error) {
    sendError(res ,"Internal server Error" ,500)
 }
-  
-
 
 }
 
+
+// -----------update produt-----------
+
+const updateProduct = as
 
 module.exports ={createNewProduct,getAllProducts,singleProductDetails}
