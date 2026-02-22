@@ -164,7 +164,7 @@ try {
 // -----------update produt-----------
 
 const updateProduct = async(req,res)=>{
-
+res.send( "upadte")
 }
 
 module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
