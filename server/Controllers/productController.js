@@ -163,6 +163,8 @@ try {
 
 // -----------update produt-----------
 
-const updateProduct = as
+const updateProduct = async(req,res)=>{
+  
+}
 
 module.exports ={createNewProduct,getAllProducts,singleProductDetails}
