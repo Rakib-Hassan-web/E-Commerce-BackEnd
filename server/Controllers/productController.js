@@ -164,7 +164,7 @@ try {
 // -----------update produt-----------
 
 const updateProduct = async(req,res)=>{
-  
+
 }
 
-module.exports ={createNewProduct,getAllProducts,singleProductDetails}
+module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
