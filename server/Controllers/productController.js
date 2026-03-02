@@ -163,8 +163,69 @@ try {
 
 // -----------update produt-----------
 
-const updateProduct = async(req,res)=>{
-res.send( "upadte")
-}
+const updateProduct = async (req, res) => {
+  try {
+    const { title, description, category, price, discountPercentage, variants, tags, isActive,
+    } = req.body;
+    const { slug } = req.params;
+    const thumbnail = req.files?.thumbnail;
+    const images = req.files?.images;
+
+    const productData = await productSchema.findOne({ slug });
+
+    if (title) productData.title = title;
+    if (description) productData.description = description;
+    if (category) productData.category = category;
+    if (price) productData.price = price;
+    if (tags && tags?.length > 0 && Array.isArray(tags)) productData.tags = tags;
+    if (discountPercentage) productData.discountPercentage = discountPercentage;
+    if (isActive) productData.isActive = isActive === "true";
+
+    const variantsData = JSON.parse(variants);
+    if (Array.isArray(variantsData) && variantsData.length > 0) {
+      for (const variant of variantsData) {
+        if (!variant.sku)
+          return responseHandler.error(res, 400, "SKU is required.");
+        if (!variant.color)
+          return responseHandler.error(res, 400, "Color is required.");
+        if (!variant.size)
+          return responseHandler.error(res, 400, "Color is required.");
+        if (!SIZE_ENUM.includes(variant.size))
+          return responseHandler.error(res, 400, "Invalid size");
+        if (!variant.stock || variant.stock < 1)
+          return responseHandler.error(
+            res,
+            400,
+            "Stock is required and must be more then 0",
+          );
+      }
+
+      const skus = variantsData.map((v) => v.sku);
+      if (new Set(skus).size !== skus.length)
+        return responseHandler.error(res, 400, "SUK must unique");
+
+      productData.variants = variantsData
+    }
+
+    if (thumbnail) {
+      const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
+      deleteFromCloudinary(`products/${imgPublicId}`);
+      const imgRes = await uploadToCloudinary(thumbnail, "products");
+      productData.thumbnail = imgRes.secure_url;
+    }
+
+    productData.save()
+
+
+    return responseHandler.success(
+      res,
+      200,
+      productData,
+      "Product Updated Successfully",
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
