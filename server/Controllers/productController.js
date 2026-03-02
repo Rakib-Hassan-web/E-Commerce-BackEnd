@@ -165,56 +165,51 @@ try {
 
 const updateProduct = async (req, res) => {
   try {
-    const { title, description, category, price, discountPercentage, variants, tags, isActive,
-    } = req.body;
+    const { title, description, category, price, discountPercentage, variants, tags, isActive,} = req.body;
     const { slug } = req.params;
     const thumbnail = req.files?.thumbnail;
     const images = req.files?.images;
 
-    const productData = await productSchema.findOne({ slug });
+    const product = await productSchema.findOne({ slug });
 
-    if (title) productData.title = title;
-    if (description) productData.description = description;
-    if (category) productData.category = category;
-    if (price) productData.price = price;
-    if (tags && tags?.length > 0 && Array.isArray(tags)) productData.tags = tags;
-    if (discountPercentage) productData.discountPercentage = discountPercentage;
-    if (isActive) productData.isActive = isActive === "true";
+    if (title) product.title = title;
+    if (description) product.description = description;
+    if (category) product.category = category;
+    if (price) product.price = price;
+    if (tags && tags?.length > 0 && Array.isArray(tags)) product.tags = tags;
+    if (discountPercentage) product.discountPercentage = discountPercentage;
+    if (isActive) product.isActive = isActive === "true";
 
     const variantsData = JSON.parse(variants);
     if (Array.isArray(variantsData) && variantsData.length > 0) {
       for (const variant of variantsData) {
         if (!variant.sku)
-          return responseHandler.error(res, 400, "SKU is required.");
+          return sendError(res ,"SKU is Required" ,400)
         if (!variant.color)
-          return responseHandler.error(res, 400, "Color is required.");
+          return sendError(res ,"Color is required." ,400) 
         if (!variant.size)
-          return responseHandler.error(res, 400, "Color is required.");
+          return sendError(res ,"size is required." ,400)     
         if (!SIZE_ENUM.includes(variant.size))
-          return responseHandler.error(res, 400, "Invalid size");
+          return sendError(res ,"Invalid Size" ,400)   
         if (!variant.stock || variant.stock < 1)
-          return responseHandler.error(
-            res,
-            400,
-            "Stock is required and must be more then 0",
-          );
+          return sendError(res , "Stock is required and must be more then 0" ,400) 
       }
 
       const skus = variantsData.map((v) => v.sku);
       if (new Set(skus).size !== skus.length)
-        return responseHandler.error(res, 400, "SUK must unique");
+        return  sendError(res ,"SUK must unique" ,400) 
 
-      productData.variants = variantsData
+      product.variants = variantsData
     }
 
     if (thumbnail) {
-      const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
+      const imgPublicId = product.thumbnail.split("/").pop().split(".")[0];
       deleteFromCloudinary(`products/${imgPublicId}`);
-      const imgRes = await uploadToCloudinary(thumbnail, "products");
-      productData.thumbnail = imgRes.secure_url;
+      const imgRes = await uploadToCloudinary(thumbnail, "product");
+      product.thumbnail = imgRes.secure_url;
     }
 
-    productData.save()
+    product.save()
 
 
     return responseHandler.success(
