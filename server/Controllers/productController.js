@@ -165,52 +165,87 @@ try {
 
 const updateProduct = async (req, res) => {
   try {
-    const { title, description, category, price, discountPercentage, variants, tags, isActive,} = req.body;
+    const { title, description, category, price, discountPercentage, variants, tags, isActive, destroyImages = []
+    } = req.body;
     const { slug } = req.params;
     const thumbnail = req.files?.thumbnail;
     const images = req.files?.images;
 
-    const product = await productSchema.findOne({ slug });
+    const productData = await productSchema.findOne({ slug });
 
-    if (title) product.title = title;
-    if (description) product.description = description;
-    if (category) product.category = category;
-    if (price) product.price = price;
-    if (tags && tags?.length > 0 && Array.isArray(tags)) product.tags = tags;
-    if (discountPercentage) product.discountPercentage = discountPercentage;
-    if (isActive) product.isActive = isActive === "true";
+    if (title) productData.title = title;
+    if (description) productData.description = description;
+    if (category) productData.category = category;
+    if (price) productData.price = price;
+    if (tags && tags?.length > 0 && Array.isArray(tags)) productData.tags = tags;
+    if (discountPercentage) productData.discountPercentage = discountPercentage;
+    if (isActive) productData.isActive = isActive === "true";
 
-    const variantsData = JSON.parse(variants);
+    const variantsData = variants && JSON.parse(variants);
     if (Array.isArray(variantsData) && variantsData.length > 0) {
       for (const variant of variantsData) {
         if (!variant.sku)
-          return sendError(res ,"SKU is Required" ,400)
+          return  sendError(res ,"SKU is Required" ,400);
         if (!variant.color)
-          return sendError(res ,"Color is required." ,400) 
+          return responseHandler.error(res, 400, "Color is required.") sendError(res ,"Color is required." ,400);
         if (!variant.size)
-          return sendError(res ,"size is required." ,400)     
+          return responseHandler.error(res, 400, "Color is required.");
         if (!SIZE_ENUM.includes(variant.size))
-          return sendError(res ,"Invalid Size" ,400)   
+          return responseHandler.error(res, 400, "Invalid size");
         if (!variant.stock || variant.stock < 1)
-          return sendError(res , "Stock is required and must be more then 0" ,400) 
+          return responseHandler.error(
+            res,
+            400,
+            "Stock is required and must be more then 0",
+          );
       }
 
       const skus = variantsData.map((v) => v.sku);
       if (new Set(skus).size !== skus.length)
-        return  sendError(res ,"SUK must unique" ,400) 
+        return responseHandler.error(res, 400, "SUK must unique");
 
-      product.variants = variantsData
+      productData.variants = variantsData
     }
 
     if (thumbnail) {
-      const imgPublicId = product.thumbnail.split("/").pop().split(".")[0];
+      const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
       deleteFromCloudinary(`products/${imgPublicId}`);
-      const imgRes = await uploadToCloudinary(thumbnail, "product");
-      product.thumbnail = imgRes.secure_url;
+      const imgRes = await uploadToCloudinary(thumbnail, "products");
+      productData.thumbnail = imgRes.secure_url;
+    }
+    let imagesUrl = [];
+
+    let totalImges = productData.images.length;
+    if (destroyImages.length > 0) totalImges -= destroyImages.length;
+    if (Array.isArray(images) && images.length > 0) totalImges += images.length;
+    
+    if (totalImges > 4) return responseHandler.error(res, 400, "You can upload maximum 4 images");
+    if (totalImges < 1) return responseHandler.error(res, 400, "Minimum 1 images should be stay");
+
+    if (images) {
+      const resPromise = images.map(async (item) =>
+        uploadToCloudinary(item, "products"),
+      );
+      const results = await Promise.all(resPromise);
+      imagesUrl = results.map((r) => r.secure_url);
+    }
+   
+    if (Array.isArray(destroyImages) && destroyImages.length > 0) {
+      
+      for (const url of destroyImages) {
+        const imgPublicId = url.split("/").pop().split(".")[0];
+        deleteFromCloudinary(`products/${imgPublicId}`);
+      }
     }
 
-    product.save()
+    let filteredImgs = productData.images.filter((item) => {
+      return !destroyImages.includes(item)
+    }) 
 
+    imagesUrl = imagesUrl.concat(filteredImgs)
+    if (imagesUrl.length > 0) productData.images = imagesUrl;
+
+    productData.save()
 
     return responseHandler.success(
       res,
@@ -222,5 +257,4 @@ const updateProduct = async (req, res) => {
     console.log(error);
   }
 };
-
 module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
