@@ -187,30 +187,26 @@ const updateProduct = async (req, res) => {
         if (!variant.sku)
           return  sendError(res ,"SKU is Required" ,400);
         if (!variant.color)
-          return responseHandler.error(res, 400, "Color is required.") sendError(res ,"Color is required." ,400);
+          return  sendError(res ,"Color is required." ,400);
         if (!variant.size)
-          return responseHandler.error(res, 400, "Color is required.");
+          return sendError(res,  "size is required.", 400,);
         if (!SIZE_ENUM.includes(variant.size))
-          return responseHandler.error(res, 400, "Invalid size");
+          return sendError(res,  "Invalid size", 400,);
         if (!variant.stock || variant.stock < 1)
-          return responseHandler.error(
-            res,
-            400,
-            "Stock is required and must be more then 0",
-          );
+          return  sendError(res,  "Stock is required and must be more then 0.", 400,);
       }
 
       const skus = variantsData.map((v) => v.sku);
       if (new Set(skus).size !== skus.length)
-        return responseHandler.error(res, 400, "SUK must unique");
+        return  sendError(res,  "SUK must unique", 400,);
 
       productData.variants = variantsData
     }
 
     if (thumbnail) {
       const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
-      deleteFromCloudinary(`products/${imgPublicId}`);
-      const imgRes = await uploadToCloudinary(thumbnail, "products");
+      deleteFromCloudinary(`product/${imgPublicId}`);
+      const imgRes = await uploadToCloudinary(thumbnail, "product");
       productData.thumbnail = imgRes.secure_url;
     }
     let imagesUrl = [];
@@ -219,8 +215,8 @@ const updateProduct = async (req, res) => {
     if (destroyImages.length > 0) totalImges -= destroyImages.length;
     if (Array.isArray(images) && images.length > 0) totalImges += images.length;
     
-    if (totalImges > 4) return responseHandler.error(res, 400, "You can upload maximum 4 images");
-    if (totalImges < 1) return responseHandler.error(res, 400, "Minimum 1 images should be stay");
+    if (totalImges > 4) return  sendError(res,  "You can upload maximum 4 images", 400,);
+    if (totalImges < 1) return  sendError(res,  "Minimum 1 images should be stay", 400,);
 
     if (images) {
       const resPromise = images.map(async (item) =>
@@ -247,14 +243,9 @@ const updateProduct = async (req, res) => {
 
     productData.save()
 
-    return responseHandler.success(
-      res,
-      200,
-      productData,
-      "Product Updated Successfully",
-    );
+    return     sendSuccess(res,  "Product Updated Successfully", 200,);
   } catch (error) {
-    console.log(error);
+   sendError(res,  "Server Error", 500,);
   }
 };
 module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
