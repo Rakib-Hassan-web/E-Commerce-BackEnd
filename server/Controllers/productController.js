@@ -164,88 +164,105 @@ try {
 // -----------update produt-----------
 
 const updateProduct = async (req, res) => {
-  try {
-    const { title, description, category, price, discountPercentage, variants, tags, isActive, destroyImages = []
-    } = req.body;
+
+
+try {
+     const { title, description, category, price, discountPercentage, variants, tags, isActive, 
+      } = req.body;
     const { slug } = req.params;
-    const thumbnail = req.files?.thumbnail;
-    const images = req.files?.images;
 
-    const productData = await productSchema.findOne({ slug });
-
-    if (title) productData.title = title;
-    if (description) productData.description = description;
-    if (category) productData.category = category;
-    if (price) productData.price = price;
-    if (tags && tags?.length > 0 && Array.isArray(tags)) productData.tags = tags;
-    if (discountPercentage) productData.discountPercentage = discountPercentage;
-    if (isActive) productData.isActive = isActive === "true";
-
-    const variantsData = variants && JSON.parse(variants);
-    if (Array.isArray(variantsData) && variantsData.length > 0) {
-      for (const variant of variantsData) {
-        if (!variant.sku)
-          return  sendError(res ,"SKU is Required" ,400);
-        if (!variant.color)
-          return  sendError(res ,"Color is required." ,400);
-        if (!variant.size)
-          return sendError(res,  "size is required.", 400,);
-        if (!SIZE_ENUM.includes(variant.size))
-          return sendError(res,  "Invalid size", 400,);
-        if (!variant.stock || variant.stock < 1)
-          return  sendError(res,  "Stock is required and must be more then 0.", 400,);
-      }
-
-      const skus = variantsData.map((v) => v.sku);
-      if (new Set(skus).size !== skus.length)
-        return  sendError(res,  "SUK must unique", 400,);
-
-      productData.variants = variantsData
-    }
-
-    if (thumbnail) {
-      const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
-      deleteFromCloudinary(`product/${imgPublicId}`);
-      const imgRes = await uploadToCloudinary(thumbnail, "product");
-      productData.thumbnail = imgRes.secure_url;
-    }
-    let imagesUrl = [];
-
-    let totalImges = productData.images.length;
-    if (destroyImages.length > 0) totalImges -= destroyImages.length;
-    if (Array.isArray(images) && images.length > 0) totalImges += images.length;
+    const product = await productSchema.findOne({slug})
+    console.log(product);
     
-    if (totalImges > 4) return  sendError(res,  "You can upload maximum 4 images", 400,);
-    if (totalImges < 1) return  sendError(res,  "Minimum 1 images should be stay", 400,);
-
-    if (images) {
-      const resPromise = images.map(async (item) =>
-        uploadToCloudinary(item, "products"),
-      );
-      const results = await Promise.all(resPromise);
-      imagesUrl = results.map((r) => r.secure_url);
-    }
+    res.send(product)
+} catch (error) {
+   console.log(error);
    
-    if (Array.isArray(destroyImages) && destroyImages.length > 0) {
+}
+
+ 
+  // try {
+  //   const { title, description, category, price, discountPercentage, variants, tags, isActive, destroyImages = []
+  //   } = req.body;
+  //   const { slug } = req.params;
+  //   const thumbnail = req.files?.thumbnail;
+  //   const images = req.files?.images;
+
+  //   const productData = await productSchema.findOne({ slug });
+
+  //   if (title) productData.title = title;
+  //   if (description) productData.description = description;
+  //   if (category) productData.category = category;
+  //   if (price) productData.price = price;
+  //   if (tags && tags?.length > 0 && Array.isArray(tags)) productData.tags = tags;
+  //   if (discountPercentage) productData.discountPercentage = discountPercentage;
+  //   if (isActive) productData.isActive = isActive === "true";
+
+  //   const variantsData = variants && JSON.parse(variants);
+  //   if (Array.isArray(variantsData) && variantsData.length > 0) {
+  //     for (const variant of variantsData) {
+  //       if (!variant.sku)
+  //         return  sendError(res ,"SKU is Required" ,400);
+  //       if (!variant.color)
+  //         return  sendError(res ,"Color is required." ,400);
+  //       if (!variant.size)
+  //         return sendError(res,  "size is required.", 400,);
+  //       if (!SIZE_ENUM.includes(variant.size))
+  //         return sendError(res,  "Invalid size", 400,);
+  //       if (!variant.stock || variant.stock < 1)
+  //         return  sendError(res,  "Stock is required and must be more then 0.", 400,);
+  //     }
+
+  //     const skus = variantsData.map((v) => v.sku);
+  //     if (new Set(skus).size !== skus.length)
+  //       return  sendError(res,  "SUK must unique", 400,);
+
+  //     productData.variants = variantsData
+  //   }
+
+  //   if (thumbnail) {
+  //     const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
+  //     deleteFromCloudinary(`product/${imgPublicId}`);
+  //     const imgRes = await uploadToCloudinary(thumbnail, "product");
+  //     productData.thumbnail = imgRes.secure_url;
+  //   }
+  //   let imagesUrl = [];
+
+  //   let totalImges = productData.images.length;
+  //   if (destroyImages.length > 0) totalImges -= destroyImages.length;
+  //   if (Array.isArray(images) && images.length > 0) totalImges += images.length;
+    
+  //   if (totalImges > 4) return  sendError(res,  "You can upload maximum 4 images", 400,);
+  //   if (totalImges < 1) return  sendError(res,  "Minimum 1 images should be stay", 400,);
+
+  //   if (images) {
+  //     const resPromise = images.map(async (item) =>
+  //       uploadToCloudinary(item, "products"),
+  //     );
+  //     const results = await Promise.all(resPromise);
+  //     imagesUrl = results.map((r) => r.secure_url);
+  //   }
+   
+  //   if (Array.isArray(destroyImages) && destroyImages.length > 0) {
       
-      for (const url of destroyImages) {
-        const imgPublicId = url.split("/").pop().split(".")[0];
-        deleteFromCloudinary(`products/${imgPublicId}`);
-      }
-    }
+  //     for (const url of destroyImages) {
+  //       const imgPublicId = url.split("/").pop().split(".")[0];
+  //       deleteFromCloudinary(`products/${imgPublicId}`);
+  //     }
+  //   }
 
-    let filteredImgs = productData.images.filter((item) => {
-      return !destroyImages.includes(item)
-    }) 
+  //   let filteredImgs = productData.images.filter((item) => {
+  //     return !destroyImages.includes(item)
+  //   }) 
 
-    imagesUrl = imagesUrl.concat(filteredImgs)
-    if (imagesUrl.length > 0) productData.images = imagesUrl;
+  //   imagesUrl = imagesUrl.concat(filteredImgs)
+  //   if (imagesUrl.length > 0) productData.images = imagesUrl;
 
-    productData.save()
+  //   productData.save()
 
-    return     sendSuccess(res,  "Product Updated Successfully", 200,);
-  } catch (error) {
-   sendError(res,  "Server Error", 500,);
-  }
+  //   return     sendSuccess(res,  "Product Updated Successfully", 200,);
+  // } catch (error) {
+  //  sendError(res,  "Server Error", 500,);
+  // }
 };
 module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
