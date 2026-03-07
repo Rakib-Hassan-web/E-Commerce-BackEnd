@@ -148,7 +148,7 @@ try {
 
   const ProductDetails = await productSchema.findOne({slug , isActive:true})
   .populate("category" ,"name")
-  .select("-isActive","__v")
+  .select("-__v")
 
   if(!ProductDetails) sendError(res ,"404 Not found" ,404)
 
@@ -169,7 +169,9 @@ const updateProduct = async (req, res) => {
 try {
      const { title, description, category, price, discountPercentage, variants, tags, isActive, 
       } = req.body;
-    const { slug } = req.params;
+     const { slug } = req.params;
+     const thumbnail =req.files?.thumbnail
+     const images =req.files?.images
 
     const product = await productSchema.findOne({slug})
     console.log(product);
@@ -201,6 +203,17 @@ if(Array.isArray(varientdata) && varientdata.length > 0){
 
 }
 
+if(thumbnail){
+  
+  const imgPublicId = product.thumbnail.split("/").pop().split(".")[0];
+  deletfromCloudinary(`products/${imgPublicId}`);
+  const response =await uplodecloudinary(thumbnail ,"products")  
+   product.thumbnail =response.secure_url;
+}
+
+
+
+product.save()
 
 } catch (error) {
    console.log(error);
