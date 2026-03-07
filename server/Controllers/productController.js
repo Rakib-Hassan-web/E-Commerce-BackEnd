@@ -174,9 +174,37 @@ try {
     const product = await productSchema.findOne({slug})
     console.log(product);
     
-    res.send(product)
+   if(title) product.title=title;
+   if(description) product.description=description;
+   if(category) product.category=category;
+   if(price) product.price=price;
+   if(discountPercentage) product.discountPercentage=discountPercentage;
+   if(tags.length > 0 && Array.isArray(tags)) product.tags=tags;
+   if(isActive) product.isActive= isActive==="true";
+
+
+  const varientdata = JSON.parse(variants)
+if(Array.isArray(varientdata) && varientdata.length > 0){
+       for (const element of varientdata) {
+        if(!element.sku) return sendError(res, "Each variant must have a SKU.", 400);
+        if(!element.color) return sendError(res, "Each variant must have a color.", 400);
+        if(!element.size) return sendError(res, "Each variant must have a size.", 400);
+        if(!ENUM_SIZE.includes(element.size)) return sendError(res, "Invalid size.", 400);
+        if(!element.stock || element.stock < 1) return sendError(res, "Each variant must have a valid stock value.", 400);
+        
+        const ALL_Sku = varientdata.map(v=>v.sku)
+        if( new Set(ALL_Sku).size !== ALL_Sku.length) return sendError(res, "Duplicate SKU found.", 400);
+
+        product.variants=varientdata
+        
+      }
+
+}
+
+
 } catch (error) {
    console.log(error);
+
    
 }
 
