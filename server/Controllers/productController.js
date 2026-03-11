@@ -288,7 +288,26 @@ const updateProduct = async (req, res) => {
     if(tags && tags?.length>0 && Array.isArray(tags)) productData.tags =tags
     if(isActive) productData.isActive = isActive ==="true"
 
+       
+// ------------------variants validatoin-------------------
 
+const varientdata = JSON.parse(variants)
+      if(Array.isArray(varientdata) && varientdata.length > 0){
+      
+        if(!element.sku) return sendError(res, "Each variant must have a SKU.", 400);
+        if(!element.color) return sendError(res, "Each variant must have a color.", 400);
+        if(!element.size) return sendError(res, "Each variant must have a size.", 400);
+        if(!ENUM_SIZE.includes(element.size)) return sendError(res, "Invalid size.", 400);
+        if(!element.stock || element.stock < 1) return sendError(res, "Each variant must have a valid stock value.", 400);
+        
+        const ALL_Sku = varientdata.map(v=>v.sku)
+        if( new Set(ALL_Sku).size !== ALL_Sku.length) return sendError(res, "Duplicate SKU found.", 400);
+
+        productData.variants =varientdata
+        
+      }
+
+      }
 
     res.send(productData)
     
