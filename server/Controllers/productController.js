@@ -272,7 +272,27 @@ try {
 
 const updateProduct = async (req, res) => {
 
-  res.send("update")
+     const { title, description, category, price, discountPercentage, variants, tags, isActive } = req.body;
+     const { slug } = req.params;
+
+   
+
+    const productData = await productSchema.findOne({slug})
+    
+
+    if(title) productData.title =title
+    if(description) productData.description =description
+    if(category) productData.category =category
+    if(price) productData.price =price
+    if(discountPercentage) productData.discountPercentage =discountPercentage
+    if(tags && tags?.length>0 && Array.isArray(tags)) productData.tags =tags
+    if(isActive) productData.isActive = isActive ==="true"
+
+
+
+    res.send(productData)
+    
+ 
 }
 
 module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
