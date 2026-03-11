@@ -1,6 +1,6 @@
 const categorySchema = require("../models/categorySchema");
 const productSchema = require("../models/productSchema");
-const { uplodecloudinary } = require("../services/cloudinaryServices");
+const { uplodecloudinary, deletfromCloudinary } = require("../services/cloudinaryServices");
 const { sendError, sendSuccess } = require("../services/responseHandler");
 const ENUM_SIZE = ["s", "m", "l", "xl", "2xl", "3xl"];
 
@@ -141,6 +141,7 @@ const category = req.query.category
 
 
 
+
 const singleProductDetails = async(req,res)=>{
 
 try {
@@ -272,8 +273,11 @@ try {
 
 const updateProduct = async (req, res) => {
 
-     const { title, description, category, price, discountPercentage, variants, tags, isActive } = req.body;
-     const { slug } = req.params;
+    try {
+        const { title, description, category, price, discountPercentage, variants, tags, isActive } = req.body;
+      const { slug } = req.params;
+      const thumbnail =req.files?.thumbnail
+      const images =req.files?.images
 
    
 
@@ -289,11 +293,12 @@ const updateProduct = async (req, res) => {
     if(isActive) productData.isActive = isActive ==="true"
 
        
-// ------------------variants validatoin-------------------
+  // ------------------variants validatoin-------------------
 
-const varientdata = JSON.parse(variants)
+  const varientdata = JSON.parse(variants)
       if(Array.isArray(varientdata) && varientdata.length > 0){
-      
+        for (const element of varientdata) {
+        
         if(!element.sku) return sendError(res, "Each variant must have a SKU.", 400);
         if(!element.color) return sendError(res, "Each variant must have a color.", 400);
         if(!element.size) return sendError(res, "Each variant must have a size.", 400);
@@ -302,16 +307,36 @@ const varientdata = JSON.parse(variants)
         
         const ALL_Sku = varientdata.map(v=>v.sku)
         if( new Set(ALL_Sku).size !== ALL_Sku.length) return sendError(res, "Duplicate SKU found.", 400);
+        
+      }
 
+       
         productData.variants =varientdata
         
       }
 
+
+    if(thumbnail){
+  const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
+     deletfromCloudinary(`products/${imgPublicId}`);
+      const response =await uplodecloudinary(thumbnail ,"products")
+     
+      productData.thumbnail =response.secure_url;
+             }
+
+      
+             productData.save()
+
+
+             res.send(productData )
+    } catch (error) {
+       console.log(error);
+       
+    }
       }
 
-    res.send(productData)
     
  
-}
+
 
 module.exports ={createNewProduct,getAllProducts,singleProductDetails,updateProduct}
