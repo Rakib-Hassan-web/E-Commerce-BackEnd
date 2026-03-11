@@ -11,12 +11,13 @@ const uplode = multer()
 routee.post("/create" ,authMiddleware, roleCheckMiddleware('admin'),uplode.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'images', maxCount: 4 }]),createNewProduct)
 routee.get("/allProducts" ,getAllProducts)
 routee.get("/:slug" ,singleProductDetails)
-routee.post("/update/:slug",authMiddleware ,roleCheckMiddleware('admin'),
+routee.put("/update/:slug",authMiddleware ,roleCheckMiddleware('admin'),
 uplode.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'images', maxCount: 4 }]),updateProduct)
 
 
 
 module.exports=routee
+
 
 
 
