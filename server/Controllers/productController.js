@@ -324,7 +324,6 @@ const updateProduct = async (req, res) => {
                productData.thumbnail =response.secure_url;
              }
 
-
             //  -images-----
 
              let imagesUrl = [];
@@ -354,14 +353,13 @@ const updateProduct = async (req, res) => {
              imagesUrl= imagesUrl.concat(filterImg)
             
       
-
              if(imagesUrl.length > 0) productData.images = imagesUrl
              productData.save()
 
 
-             res.send(productData )
+             sendSuccess(res ,"Product updated",productData,200,)
     } catch (error) {
-       console.log(error);
+       
        
     }
       }
