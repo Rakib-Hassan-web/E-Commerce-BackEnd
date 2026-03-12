@@ -338,18 +338,21 @@ const updateProduct = async (req, res) => {
 
             //  console.log(Array.isArray(destroyImg));
              
+            
               
              if(Array.isArray(destroyImg) && destroyImg.length > 0){
               for (const url of destroyImg) {
                       const imgPublicId = url.split("/").pop().split(".")[0];
                   deletfromCloudinary(`products/${imgPublicId}`);
               }
+               }
+
               let filterImg =productData.images.filter((item)=>{
                 return !destroyImg.includes(item)
               })
 
-              imagesUrl.concat(filterImg)
-             }
+             imagesUrl= imagesUrl.concat(filterImg)
+            
       
 
              if(imagesUrl.length > 0) productData.images = imagesUrl
