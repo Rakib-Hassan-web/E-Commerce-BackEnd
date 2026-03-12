@@ -274,7 +274,7 @@ try {
 const updateProduct = async (req, res) => {
 
     try {
-        const { title, description, category, price, discountPercentage, variants, tags, isActive } = req.body;
+        const { title, description, category, price, discountPercentage, variants, tags, isActive ,destroyImg =[]} = req.body;
       const { slug } = req.params;
       const thumbnail =req.files?.thumbnail
       const images =req.files?.images
@@ -295,7 +295,7 @@ const updateProduct = async (req, res) => {
        
   // ------------------variants validatoin-------------------
 
-  const varientdata = JSON.parse(variants)
+  const varientdata =variants && JSON.parse(variants)
       if(Array.isArray(varientdata) && varientdata.length > 0){
         for (const element of varientdata) {
         
@@ -315,16 +315,44 @@ const updateProduct = async (req, res) => {
         
       }
 
-
-    if(thumbnail){
-  const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
-     deletfromCloudinary(`products/${imgPublicId}`);
-      const response =await uplodecloudinary(thumbnail ,"products")
+// ----------thumnail--
+            if(thumbnail){
+              const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
+               deletfromCloudinary(`products/${imgPublicId}`);
+               const response =await uplodecloudinary(thumbnail ,"products")
      
-      productData.thumbnail =response.secure_url;
+               productData.thumbnail =response.secure_url;
              }
 
+
+            //  -images-----
+
+             let imagesUrl = [];
+
+              if (images) {
+              const resPromise = images.map(async (item) => uplodecloudinary(item, "products"));
+              const results = await Promise.all(resPromise)
+              imagesUrl = results.map(r => r.secure_url)
+
+              }
+
+            //  console.log(Array.isArray(destroyImg));
+             
+              
+             if(Array.isArray(destroyImg) && destroyImg.length > 0){
+              for (const url of destroyImg) {
+                      const imgPublicId = url.split("/").pop().split(".")[0];
+                  deletfromCloudinary(`products/${imgPublicId}`);
+              }
+              let filterImg =productData.images.filter((item)=>{
+                return !destroyImg.includes(item)
+              })
+
+              imagesUrl.concat(filterImg)
+             }
       
+
+             if(imagesUrl.length > 0) productData.images = imagesUrl
              productData.save()
 
 
