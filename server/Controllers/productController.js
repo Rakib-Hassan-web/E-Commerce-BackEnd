@@ -164,113 +164,6 @@ try {
 
 // -----------update produt-----------
 
-// const updateProduct = async (req, res) => {
-
-
-// const updateProduct = async (req, res) => {
-//   try {
-
-//     const { title, description, category, price, discountPercentage, variants, tags, isActive } = req.body;
-//     const { slug } = req.params;
-
-//     const thumbnail = req.files?.thumbnail;
-//     const images = req.files?.images;
-
-//     const product = await productSchema.findOne({ slug });
-
-//     if (!product) return sendError(res, "Product not found", 404);
-
-//     if (title) product.title = title;
-//     if (description) product.description = description;
-//     if (category) product.category = category;
-//     if (price) product.price = price;
-//     if (discountPercentage) product.discountPercentage = discountPercentage;
-
-//     if (tags && tags?.length > 0 && Array.isArray(tags)) {
-//       product.tags = tags;
-//     }
-
-//     if (isActive !== undefined) {
-//       product.isActive = isActive === "true";
-//     }
-
-//     // ---------------- VARIANTS ----------------
-
-//     if (variants) {
-
-//       const varientdata = JSON.parse(variants);
-
-//       if (Array.isArray(varientdata) && varientdata.length > 0) {
-
-//         const ALL_Sku = varientdata.map(v => v.sku);
-
-//         if (new Set(ALL_Sku).size !== ALL_Sku.length) {
-//           return sendError(res, "Duplicate SKU found.", 400);
-//         }
-
-//         for (const element of varientdata) {
-
-//           if (!element.sku) return sendError(res, "Each variant must have a SKU.", 400);
-//           if (!element.color) return sendError(res, "Each variant must have a color.", 400);
-//           if (!element.size) return sendError(res, "Each variant must have a size.", 400);
-
-//           if (!ENUM_SIZE.includes(element.size)) {
-//             return sendError(res, "Invalid size.", 400);
-//           }
-
-//           if (!element.stock || element.stock < 1) {
-//             return sendError(res, "Each variant must have a valid stock value.", 400);
-//           }
-//         }
-
-//         // check duplicate SKU in database
-//         const existingSku = await productSchema.findOne({
-//           "variants.sku": { $in: ALL_Sku },
-//           _id: { $ne: product._id }
-//         });
-
-//         if (existingSku) {
-//           return sendError(res, "SKU already exists in another product", 400);
-//         }
-
-//         product.variants = varientdata;
-//       }
-//     }
-
-//     // ---------------- THUMBNAIL UPDATE ----------------
-
-//     if (thumbnail) {
-
-//       const imgPublicId = product.thumbnail.split("/").pop().split(".")[0];
-
-//       await deletfromCloudinary(`products/${imgPublicId}`);
-
-//       const response = await uplodecloudinary(thumbnail, "products");
-
-//       product.thumbnail = response.secure_url;
-//     }
-
-//     // ---------------- SAVE ----------------
-
-//     await product.save();
-
-//     sendSuccess(res, "product updated done", product, 200);
-
-//   } catch (error) {
-
-//     if (error.code === 11000) {
-//       return sendError(res, "Duplicate SKU not allowed", 400);
-//     }
-
-//     sendError(res, "Server Error", error, 500);
-//   }
-// };
-
- 
-
-// };
-
-
 const updateProduct = async (req, res) => {
 
     try {
@@ -327,6 +220,12 @@ const updateProduct = async (req, res) => {
             //  -images-----
 
              let imagesUrl = [];
+               let totalImges = productData.images.length;
+                 if (destroyImg.length > 0) totalImges -= destroyImg.length;
+                 if (Array.isArray(images) && images.length > 0) totalImges += images.length;
+    
+                      if (totalImges > 4) return sendError(res,  "You can upload maximum 4 images" ,400);
+                      if (totalImges < 1) return sendError(res,  "Minimum uplode 1 image",400);
 
               if (images) {
               const resPromise = images.map(async (item) => uplodecloudinary(item, "products"));
@@ -358,8 +257,9 @@ const updateProduct = async (req, res) => {
 
 
              sendSuccess(res ,"Product updated",productData,200,)
-    } catch (error) {
+     } catch (error) {
        
+             sendError(res ,"server error",500,)
        
     }
       }
