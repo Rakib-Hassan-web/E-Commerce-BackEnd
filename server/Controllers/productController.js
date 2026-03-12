@@ -315,7 +315,7 @@ const updateProduct = async (req, res) => {
         
       }
 
-// ----------thumnail--
+       // ----------thumnail--
             if(thumbnail){
               const imgPublicId = productData.thumbnail.split("/").pop().split(".")[0];
                deletfromCloudinary(`products/${imgPublicId}`);
