@@ -64,8 +64,6 @@ const AddToCart = async (req,res)=>{
 
 // --------------get user cart ----------
 
-
-
 const getUserCart = async( req,res)=>{
 
     const Cart = await cartSchema.findOne({user:req.user._id})
