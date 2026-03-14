@@ -2,6 +2,8 @@ const cartSchema = require("../models/cartSchema");
 const productSchema = require("../models/productSchema");
 const { sendError, sendSuccess } = require("../services/responseHandler");
 
+
+// ------------add to cart------------
 const AddToCart = async (req,res)=>{
     try {
 
@@ -59,5 +61,19 @@ const AddToCart = async (req,res)=>{
       return sendError(res ,"Server Error" ,500)
     }
 }
+
+// --------------get user cart ----------
+
+
+
+const getUserCart = async( req,res)=>{
+
+    const Cart = await cartSchema.findOne({user:req.user._id})
+
+    console.log(Cart);
+    
+}
+
+
 
 module.exports={AddToCart}
