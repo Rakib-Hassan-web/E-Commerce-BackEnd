@@ -1,12 +1,13 @@
 const express = require('express')
-const { AddToCart, getUserCart } = require('../Controllers/cartController')
+const { AddToCart, getUserCart, updateCart } = require('../Controllers/cartController')
 
 const routee =express.Router()
 
 
 
 routee.post("/add" ,AddToCart  )
-routee.post("/userCart" ,getUserCart  )
+routee.post("/usercart" ,getUserCart  )
+routee.post("/update" ,updateCart  )
 
 
 
