@@ -76,4 +76,4 @@ const getUserCart = async( req,res)=>{
 
 
 
-module.exports={AddToCart}
+module.exports={AddToCart,getUserCart}

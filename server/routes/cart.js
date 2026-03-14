@@ -1,11 +1,12 @@
 const express = require('express')
-const { AddToCart } = require('../Controllers/cartController')
-const authMiddleware = require('../middleware/authMiddleware')
+const { AddToCart, getUserCart } = require('../Controllers/cartController')
+
 const routee =express.Router()
 
 
 
-routee.post("/add" ,authMiddleware ,AddToCart  )
+routee.post("/add" ,AddToCart  )
+routee.post("/userCart" ,  )
 
 
 
