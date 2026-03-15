@@ -132,4 +132,11 @@ const updateCart = async (req, res) => {
 };
 
 
+// -------------remove from cart-----------
+
+const removeCart = async (req,res)=>{
+  
+}
+
+
 module.exports={AddToCart,getUserCart,updateCart}
