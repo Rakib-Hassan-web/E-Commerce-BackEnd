@@ -135,8 +135,10 @@ const updateCart = async (req, res) => {
 // -------------remove from cart-----------
 
 const removeCart = async (req,res)=>{
-  
+
+
+  res.send
 }
 
 
-module.exports={AddToCart,getUserCart,updateCart}
+module.exports={AddToCart,getUserCart,updateCart,removeCart}
