@@ -58,7 +58,7 @@ const AddToCart = async (req,res)=>{
       return sendSuccess(res ,"Product added to cart" ,200)
        
     } catch (error) {
-      return sendError(res ,"Server Error" ,500)
+     sendError(res ,"Server Error" ,500)
     }
 }
 
@@ -66,16 +66,35 @@ const AddToCart = async (req,res)=>{
 
 const getUserCart = async( req,res)=>{
 
-    const Cart = await cartSchema.findOne({user:req.user._id})
+try {
+        const Cart = await cartSchema.findOne({user:req.user._id})
 
-    console.log(Cart);
+
+    sendSuccess(res ,"",Cart ,200)
+} catch (error) {
+    sendError(res ,"Server Error" ,500)
+}
+    
     
 }
 
 // ----------------update cart ------------
 
 const updateCart = async ( req , res)=>{
+try {
 
+    const {productId ,Quantity ,ItemId} =req.body
+
+    if(Quantity<1) return sendError(res ,"Quantity must be more then 1" ,400)
+
+    if(!productId || !Quantity || !ItemId) return sendError(res ,"Invalid Request" ,400)
+
+        const Cart = await cartSchema.findOne({user:req.user._id ,})
+
+    
+} catch (error) {
+    sendError(res ,"Server Error" ,500)
+}
 }
 
 
