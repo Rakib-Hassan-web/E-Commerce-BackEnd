@@ -11,10 +11,10 @@ const AddToCart = async (req,res)=>{
 
         if(!productId || !sku || !Quantity) return sendError(res ,"Invalid Request" ,400)
 
-        const product = await productSchema.findById(productId)
 
         if(!product) return sendError(res ,"Product not found" ,404)
  
+        const product = await productSchema.findById(productId)
 
         const ExistingCart = await cartSchema.findOne({user:req.user._id})
 
@@ -89,11 +89,21 @@ try {
 
     if(!productId || !Quantity || !ItemId) return sendError(res ,"Invalid Request" ,400)
 
-        const Cart = await cartSchema.findOne({user:req.user._id ,})
+        
+   
 
-    
+        const product = await productSchema.findById(productId)
+        const discounteAmount = (product.price * product.discountPercentage) / 100
+        const discountedPrice = product.price - discounteAmount
+        const subtotal = discountedPrice * Quantity
+
+     const Cart = await cartSchema.findOnea({user:req.user._id , "items._id" :ItemId},{ $set: { "items.$.Quantity": Quantity, "items.$.subtotal": subtotal } }, { new: true })
+
+    res.send(Cart)
 } catch (error) {
+    console.log(error );
     sendError(res ,"Server Error" ,500)
+    
 }
 }
 
