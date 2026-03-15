@@ -12,9 +12,9 @@ const AddToCart = async (req,res)=>{
         if(!productId || !sku || !Quantity) return sendError(res ,"Invalid Request" ,400)
 
 
+            const product = await productSchema.findById(productId)
         if(!product) return sendError(res ,"Product not found" ,404)
  
-        const product = await productSchema.findById(productId)
 
         const ExistingCart = await cartSchema.findOne({user:req.user._id})
 
@@ -58,6 +58,7 @@ const AddToCart = async (req,res)=>{
       return sendSuccess(res ,"Product added to cart" ,200)
        
     } catch (error) {
+        console.log(error)
      sendError(res ,"Server Error" ,500)
     }
 }
@@ -80,32 +81,55 @@ try {
 
 // ----------------update cart ------------
 
-const updateCart = async ( req , res)=>{
-try {
+const updateCart = async (req, res) => {
+  try {
 
-    const {productId ,Quantity ,ItemId} =req.body
+    const { productId, itemId, Quantity } = req.body;
 
-    if(Quantity<1) return sendError(res ,"Quantity must be more then 1" ,400)
+    if (!productId || !itemId || !Quantity) {
+      return sendError(res, "Invalid Request", 400);
+    }
 
-    if(!productId || !Quantity || !ItemId) return sendError(res ,"Invalid Request" ,400)
+    if (Quantity < 1) {
+      return sendError(res, "Keep minimum 1 item", 400);
+    }
 
-        
-   
+    const productData = await productSchema.findById(productId);
 
-        const product = await productSchema.findById(productId)
-        const discounteAmount = (product.price * product.discountPercentage) / 100
-        const discountedPrice = product.price - discounteAmount
-        const subtotal = discountedPrice * Quantity
+    if (!productData) {
+      return sendError(res, "Product not found", 404);
+    }
 
-     const Cart = await cartSchema.findOnea({user:req.user._id , "items._id" :ItemId},{ $set: { "items.$.Quantity": Quantity, "items.$.subtotal": subtotal } }, { new: true })
+    const discountAmount =(productData.price * productData.discountPercentage) / 100;
+    const discountedPrice = productData.price - discountAmount;
+    const subtotal = discountedPrice * Quantity;
 
-    res.send(Cart)
-} catch (error) {
-    console.log(error );
-    sendError(res ,"Server Error" ,500)
-    
-}
-}
+    const cart = await cartSchema.findOneAndUpdate(
+      {
+        user: req.user._id,
+        "items._id": itemId
+      },
+      {
+        $set: {
+          "items.$.Quantity": Quantity,
+          "items.$.subtotal": subtotal
+        }
+      },
+      { new: true }
+    );
+  
+
+
+    if (!cart) {
+      return sendError(res, "Cart item not found", 404);
+    }
+
+    sendSuccess(res, "Cart Updated", cart, 200);
+
+  } catch (error) {
+    sendError(res, "Server error", 500);
+  }
+};
 
 
 module.exports={AddToCart,getUserCart,updateCart}
