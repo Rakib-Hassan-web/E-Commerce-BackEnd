@@ -161,7 +161,9 @@ const removeCart = async (req,res)=>{
       { new: true }
     );
   
-  
+    if (!cart) {
+      return sendError(res, "Cart item not found", 404);
+    }
 
     sendSuccess(res, "Cart Remove successfully", cart, 200);
 
