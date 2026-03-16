@@ -3,6 +3,7 @@ const { uplodecloudinary, deletfromCloudinary } = require("../services/cloudinar
 const {
   sendEmail
 } = require("../services/emailServices")
+const { sendError, sendSuccess } = require("../services/responseHandler");
 const emailtemplate = require("../services/emailTemplate")
 const {
   generateOTP,
@@ -27,28 +28,15 @@ const RegisterUSer = async (req, res) => {
       phone
     } = req.body;
 
-    if (!fullName) return res.status(400).send({
-      message: "fullName is Required"
-    });
-    if (!email) return res.status(400).send({
-      message: "email is Required"
-    });
-    if (!isValidEmail(email)) return res.status(400).send({
-      message: "Invalid Email"
-    });
-    if (!password) return res.status(400).send({
-      message: "password is Required"
-    });
-    if (!isValidPassword(password)) return res.status(400).send({
-      message: "Invalid Password"
-    });
-
+    if (!fullName) return sendError(res, "fullName is Required", 400);  
+    if (!email) return sendError(res, "email is Required", 400);       
+    if (!isValidEmail(email)) return sendError(res, "Invalid Email", 400);   
+    if (!password) return  sendError(res, "password is Required", 400);  
+    if (!isValidPassword(password)) return   sendError(res, "Invalid Password", 400);   
     const existinguser = await userSchema.findOne({
       email
     });
-    if (existinguser) return res.status(400).send({
-      message: "User Already Exists"
-    });
+    if (existinguser) return sendError(res, "User Already Exists", 400);    
 
     const otp = generateOTP();
 
@@ -70,16 +58,14 @@ const RegisterUSer = async (req, res) => {
       template: emailtemplate,
 
     });
+    sendSuccess(res, "User Registered Successfully", 201);
 
-    res.status(201).send({
-      message: "User Registered Successfully"
-    });
+   
 
   } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      message: "Internal Server Error"
-    });
+   
+   sendError(res, "Server error", 500);
+
   }
 };
 
@@ -93,12 +79,8 @@ const verifyOTP = async (req, res) => {
       email
     } = req.body
 
-    if (!otp) return res.status(400).send({
-      message: "OTP is required"
-    })
-    if (!email) return res.status(400).send({
-      message: "Email is required"
-    })
+    if (!otp) return  sendError(res, "OTP is required", 400);  
+    if (!email) return   sendError(res, "Email is required", 400);  
 
     const user = await userSchema.findOne({
       email,
@@ -109,26 +91,19 @@ const verifyOTP = async (req, res) => {
       isverified: false,
     })
 
-    if (!user) return res.status(400).send({
-      message: "Invalid or Expired OTP"
-    })
-
+    if (!user) return   sendError(res, "Invalid or Expired OTP", 400); 
     user.isverified = true
     user.otp = null
     user.otpExpires = null
     await user.save()
 
+    sendSuccess(res, "OTP Verified Successfully", 200);
 
-    res.status(200).send({
-      message: "OTP Verified Successfully"
-    })
-
+  
 
   } catch (error) {
 
-    res.status(500).send({
-      message: "Internal Server Error"
-    });
+    sendError(res, "Server error", 500);
   }
 
 }
@@ -142,18 +117,13 @@ const resendOTP = async (req, res) => {
       email
     } = req.body
 
-    if (!email) return res.status(400).send({
-      message: "Email is required"
-    });
-
-
+    if (!email) return sendError(res, "Email is required", 400);     
+    
     const user = await userSchema.findOne({
       email,
       isverified: false,
     })
-    if (!user) return res.status(400).send({
-      message: "Invalid or Unverified User"
-    })
+    if (!user) return  sendError(res, "Invalid or Unverified User", 404);
 
     const otp = generateOTP();
     user.otp = otp
@@ -169,16 +139,11 @@ const resendOTP = async (req, res) => {
 
     });
 
-    res.status(201).send({
-      message: "OTP Resent Successfully"
-    });
-
+     sendSuccess(res, "OTP Resent Successfully", 200);
 
 
   } catch (error) {
-    res.status(500).send({
-      message: "Internal Server Error"
-    });
+    sendError(res ,"server Error" ,500)
 
   }
 }
@@ -194,25 +159,21 @@ const LoginUser = async( req,res)=> {
 
     
 
- if (!email) return res.status(400).send({message: "email is Required" });
- if (!isValidEmail(email)) return res.status(400).send({message: "Invalid Email" });
+ if (!email)  return sendError(res, "Email is Required", 400);  
+ if (!isValidEmail(email)) return sendError(res, "Invalid Email", 400); 
 
-    if (!password) return res.status(400).send({ message: "password is Required" });
- if (!isValidPassword(password)) return res.status(400).send({ message: "Invalid Password"});
+    if (!password) return  sendError(res, "password is Required", 400);  
+ if (!isValidPassword(password)) return sendError(res, "Invalid Password", 400);   
 
 
 
  const user = await userSchema.findOne({email})
 
-   if (!user) return res.status(400).send({
-      message: "User Not Registered"
-    });
-
+   if (!user) return sendError(res, "User Not Registered", 400);     
     const Pass_Match = await user.comparePassword(password)
 
-    if (!Pass_Match) return res.status(400).send({message: "Wrong Password"})
-    if (!user.isverified) return res.status(400).send({message: "User Not Verified"})
-
+    if (!Pass_Match) return  sendError(res, "Wrong Password", 400);   
+    if (!user.isverified) return sendError(res, "User Not Verified", 400);  
     const ACC_TKN =  GenerateACCTkn(user)
     const REF_TKN =  GenerateREFR_Tkn (user)
 
@@ -233,14 +194,11 @@ const LoginUser = async( req,res)=> {
      });
 
 
-
-  res.status(200).send({message: "Login Successful", })
-
+ sendSuccess(res, "Login Successful", 200);  
 
     
   } catch (error) {
-  res.status(500).send({ message: "Internal Server Error" });
-  console.log(error);
+   sendError(res, "Server error", 500);
   
   }
 }
@@ -253,18 +211,12 @@ const forgetpass = async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email) {
-      return res.status(400).send({ message: "Email is required" });
-    }
+    if (!email) return sendError(res, "Email is Required", 400); 
 
-    if (!isValidEmail(email)) {
-      return res.status(400).send({ message: "Invalid Email" });
-    }
+    if (!isValidEmail(email))  return sendError(res, "Invalid Email", 400); 
 
     const user = await userSchema.findOne({ email });
-    if (!user) {
-      return res.status(400).send({ message: "User Not Registered" });
-    }
+    if (!user)  return sendError(res, "User Not Registered", 400); 
 
      const { resetToken, hashedToken } = generateResetPassToken();
     user.resetPassToken = hashedToken;
@@ -279,17 +231,11 @@ const forgetpass = async (req, res) => {
       template: emailtemplate.forgetPassTemp,
       fullName: user.fullName
     });
-
-    res.status(200).send({
-      message: "Forget password email sent successfully"
-    });
+   sendSuccess(res, "Forget password email sent successfully", 200); 
+   
 
   } catch (error) {
-    console.error("Forget password error:", error);
-    res.status(500).send({
-      message: "Failed to send reset email",
-      error: error.message
-    });
+   sendError(res, "Server error", 500);
   }
 };
 
@@ -301,13 +247,12 @@ const GetUserProfile = async (req, res) => {
 try {
   const userID = await userSchema.findById(req.user._id).select(" -password -otp -otpExpires -resetExpire -resetPassToken")
 
-if(!userID) return res.status(404).send({message: "user not found"})
+if(!userID)  return sendError(res, "user not found", 404); 
 
-res.status(200).send({message: "user profile fetched successfully", user: userID})
-
+  sendSuccess(res, "user profile fetched successfully",userID, 200); 
   
 } catch (error) {
-  res.status(500).send({message: "Internal Server Error"})
+ sendError(res, "Server error", 500);
   
   
 }
@@ -340,12 +285,13 @@ const user = await userSchema.findById(userId).select("-password -otp -otpExpire
 
     
 user.save()
+   sendSuccess(res, "user profile updated successfully",user, 200); 
 
-    res.status(200).send({message:"user profile updated successfully" ,user})
+  
   
 } 
 catch (error) {
-  res.status(500).send({message: "Internal Server Error"})
+  sendError(res, "Server error", 500);
 }
 }
 
@@ -357,9 +303,7 @@ const refreshAccessToken = async (req, res) => {
   try {
     const refreshToken =
       req.cookies?.["X-RF-Token"] || req.headers.authorization;
-    if (!refreshToken) {
-      return res.status(401).send({ message: "Refresh token missing" });
-    }
+    if (!refreshToken)  return sendError(res, "Refresh token missing", 400); 
    
     const decoded = verifyToken(refreshToken)
     if(!decoded) return;
@@ -372,7 +316,7 @@ const refreshAccessToken = async (req, res) => {
 
   } catch (error) {
 
-    return res.status(500).send({ message: "Server error" });
+    sendError(res, "Server error", 500);
   }
 };
 
