@@ -136,7 +136,9 @@ const updateCart = async (req, res) => {
 
 const removeCart = async (req,res)=>{
 
- const {  itemId } = req.body;
+
+  try {
+     const {  itemId } = req.body;
 
     if ( !itemId ) {
      return sendError(res, "Invalid Request", 400);
@@ -144,42 +146,27 @@ const removeCart = async (req,res)=>{
 
 
 
-    const productData = await productSchema.findById(productId);
-
-    if (!productData) {
-      return sendError(res, "Product not found", 404);
-    }
-
-    const discountAmount =(productData.price * productData.discountPercentage) / 100;
-    const discountedPrice = productData.price - discountAmount;
-    const subtotal = discountedPrice * Quantity;
-
     const cart = await cartSchema.findOneAndUpdate(
       {
         user: req.user._id,
         "items._id": itemId
       },
       {
-        $set: {
-          "items.$.Quantity": Quantity,
-          "items.$.subtotal": subtotal
+        $pull: {
+            items:{
+              _id:itemId
+            }
         }
       },
       { new: true }
     );
   
+  
 
+    sendSuccess(res, "Cart Remove successfully", cart, 200);
 
-    if (!cart) {
-      return sendError(res, "Cart item not found", 404);
-    }
-
-    sendSuccess(res, "Cart Updated", cart, 200);
-
-  try {
-    
   } catch (error) {
-    
+     sendError(res, "Server error", 500);
   }
 }
 
