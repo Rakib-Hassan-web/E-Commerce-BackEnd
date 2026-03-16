@@ -8,7 +8,7 @@ const routee =express.Router()
 routee.post("/add" ,AddToCart  )
 routee.get("/usercart" ,getUserCart  )
 routee.put("/update" ,updateCart  )
-routee.put("/remove" ,removeCart  )
+routee.post("/remove" ,removeCart  )
 
 
 
