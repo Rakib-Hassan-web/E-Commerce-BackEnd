@@ -1,6 +1,6 @@
 const categorySchema = require("../models/categorySchema")
 const { uplodecloudinary } = require("../services/cloudinaryServices")
-const { sendSuccess } = require("../services/responseHandler")
+const { sendSuccess, sendError } = require("../services/responseHandler")
 
 
 const createNewCategory = async(req,res)=>{
@@ -8,13 +8,13 @@ const createNewCategory = async(req,res)=>{
         const {name ,description,slug} = req.body
 
 
-        if(!name) return  sendSuccess(res , " Category name is required" ,200)
-        if(!slug) return  sendSuccess(res , " slug is required" ,200)
-        if(!req.file) return res.status(400).send({message :" Category thumbnail is required"})
+        if(!name) return  sendError(res , " Category name is required" ,400)
+        if(!slug) return  sendError(res , " slug is required" ,400)
+        if(!req.file) return  sendError(res , "Category thumbnail is required" ,400)
 
 
         const existingCategoryslug = await categorySchema.findOne({slug})
-        if(existingCategoryslug) return res.status(400).send({message :" Category already exists"})
+        if(existingCategoryslug)  return sendError(res, "Category already exists", 400); 
 
 
      const response =await uplodecloudinary(req.file ,"thumbnail")
@@ -27,13 +27,11 @@ const createNewCategory = async(req,res)=>{
        })
 
        category.save()
-
-        res.status(201).send({message :" Category created successfully"})
+       sendSuccess(res, " Category created successfully", 201); 
 
 
     } catch (error) {
-        res.status(500).send({message:"Internal server error"})
-        console.log(error)
+         sendError(res, "Server error", 500);
     }
 }
 
