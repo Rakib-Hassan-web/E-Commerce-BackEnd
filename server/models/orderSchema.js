@@ -40,6 +40,23 @@ const shippingAddressSchema = new mongoose.Schema({
  
 });
 
+
+const paymentschema = new mongoose.Schema({
+
+    paymentMethod: {
+      type: String,
+      enum: ["COD", "BKASH", "NAGAD", "CARD"],
+      default: "COD",
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: ["PENDING", "PAID", "FAILED"],
+      default: "PENDING",
+    },
+ 
+});
+
 const orderSchema = new mongoose.Schema(
   {
     user: {
@@ -62,17 +79,7 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    paymentMethod: {
-      type: String,
-      enum: ["COD", "BKASH", "NAGAD", "CARD"],
-      default: "COD",
-    },
-
-    paymentStatus: {
-      type: String,
-      enum: ["PENDING", "PAID", "FAILED"],
-      default: "PENDING",
-    },
+ payment:paymentschema,
 
     orderStatus: {
       type: String,
