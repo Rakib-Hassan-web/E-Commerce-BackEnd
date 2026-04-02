@@ -69,7 +69,7 @@ const orderSchema = new mongoose.Schema(
 
     shippingAddress: shippingAddressSchema,
 
-    delavaryCost:{
+    deliveryCost:{
         type:Number,
         default:0
     },
@@ -87,9 +87,9 @@ const orderSchema = new mongoose.Schema(
       default: "PROCESSING",
     },
 
-    itemsPrice: {
-      type: Number,
-      required: true,
+    OrderNum: {
+      type: String,
+      unique: true,
     },
 
  
