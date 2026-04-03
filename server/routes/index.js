@@ -11,11 +11,15 @@ const cart_route = require ('./cart.js')
 const order_route = require ('./order.js')
 const authMiddleware = require('../middleware/authMiddleware.js')
 
+
+
 routee.use('/auth' ,  auth_route)
 
 routee.use('/product' ,  product_route)
 routee.use('/cart' ,authMiddleware,  cart_route)
 routee.use('/order' ,authMiddleware,  order_route)
+
+
 
 routee.get ('/' ,(req,res)=>{
     res.send ('api is working')
