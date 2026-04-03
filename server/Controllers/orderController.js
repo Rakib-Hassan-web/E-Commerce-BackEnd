@@ -3,7 +3,7 @@ const orderSchema = require("../models/orderSchema");
 const Order = require("../models/orderSchema");
 const { sendError, sendSuccess } = require("../services/responseHandler");
 const stripe = require('stripe')(process.env.STRIPE_SEC);
-const endpointSecret = `${"whsec_tmVDtOCIrOmwat6Jbd26wF6TgcZUFs23"}`;
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 
 
@@ -135,7 +135,6 @@ const webhook = async (req, res) => {
       return sendError(res, `Webhook Error: ${error.message}`, 400);
     }
   }
-
 
   sendSuccess(res,"webhook received" ,200)
   console.log("event received" ,event);
