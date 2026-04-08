@@ -13,29 +13,42 @@ const checkOut = async (req, res) => {
     const { cartID, shippingAddress, paymentMethod } = req.body;
     const OrderNum = `RHA-${Date.now()}`;
 
+    // ------------- Validation----------
     if (!cartID) return sendError(res, "cartid is required", 400);
     if (!shippingAddress) return sendError(res, "shipping address is required", 400);
     if (!paymentMethod) return sendError(res, "payment information is required", 400);
 
-    const cartData = await cartSchema.findById(cartID);
+ 
+    const cartData = await cartSchema
+      .findById(cartID)
+      .populate("items.product");
+
     if (!cartData) return sendError(res, "cart not found", 404);
 
 
-    const totalPrice = cartData.items.reduce((total, item) => {
-      return total += item.subtotal;
+    const validItems = cartData.items.filter((item) => item.product);
+
+    if (validItems.length === 0) {
+      return sendError(res, "No valid products in cart", 400);
+    }
+
+    // ------ Total price------ 
+    const totalPrice = validItems.reduce((total, item) => {
+      return total + (item.subtotal || 0);
     }, 0);
 
-    
+    // --------- Create Order-----------
     const orderData = new Order({
       user: req.user._id,
-      orderItems: cartData.items,
+      orderItems: validItems,
 
       shippingAddress: {
         fullName: shippingAddress.fullName,
         address: shippingAddress.address,
-        phone: shippingAddress.phone ,
+        phone: shippingAddress.phone,
       },
-      paymentMethod: paymentMethod,
+
+      paymentMethod,
       totalPrice,
       OrderNum,
       deliveryCost: 120,
@@ -43,104 +56,118 @@ const checkOut = async (req, res) => {
 
     await orderData.save();
 
-   
-    await cartSchema.findByIdAndDelete(cartID);
 
-       if(paymentMethod =="COD"){
-       
+    if (paymentMethod === "COD") {
+      await cartSchema.findByIdAndDelete(cartID);
       return sendSuccess(res, "order placed successfully", 200);
     }
 
+    const line_items = validItems.map((item) => {
+      const product = item.product;
 
-const session = await stripe.checkout.sessions.create({
-  mode: 'payment',
+      const productName =
+        product?.name || product?.title || "Product";
 
-  line_items: [
-    {
-      price_data: {
-        currency: 'bdt',
-        product_data: {
-          name: 'T-Shirt',
-          description: `Blue T-Shirt with chest print`,
+      const shortDesc = product?.description
+        ? product.description.split(" ").slice(0, 8).join(" ") + "..."
+        : "No description";
+
+      const price = product?.price || 100;
+
+      return {
+        price_data: {
+          currency: "bdt",
+          product_data: {
+            name: productName,
+            description: shortDesc,
+          },
+          unit_amount: price * 100,
         },
-        unit_amount: 300 * 100,
+        quantity: item.Quantity || 1,
+      };
+    });
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items,
+
+      customer_email: req.user.email,
+
+      success_url: `https://example.com/success`,
+      cancel_url: `https://example.com/error`,
+
+      metadata: {
+        orderId: orderData._id.toString(),
       },
-      quantity: 1,
-    }
-  ],
+    });
 
-  customer_email: req.user.email,
+    await cartSchema.findByIdAndDelete(cartID);
 
-  success_url: `https://example.com/success`,
-  cancel_url: `https://example.com/error`,
+    console.log(session);
+    return res.redirect(303, session.url);
 
- 
-   metadata: {
-    orderId: orderData._id.toString(), 
-   },
-  });
-
-
-        res.redirect(303, session.url);
-        console.log(session);
-
+    
 
   } catch (error) {
-    console.log(error);
-    sendError(res, "internal server error", 500);
+    console.log("Checkout Error:", error);
+    return sendError(res, "internal server error", 500);
   }
-
 };
-
 
 // --------------weebhook-------------------
 
 const webhook = async (req, res) => {
   const signature = req.headers["stripe-signature"];
-
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(
-      req.body, 
+      req.body,
       signature,
       endpointSecret
     );
-
- 
   } catch (err) {
     return sendError(res, `Webhook Error: ${err.message}`, 400);
-
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
+  const session = event.data.object;
 
-    try {
-      if (!session.metadata?.orderId) {
-        return sendError(res, "No orderId found", 400);
-        
-      }
-
-      const updatedOrder = await Order.findByIdAndUpdate(
-        session.metadata.orderId,
-        {
-          "payment.status": "paid",
-        },
-        { new: true }
-      );
-
+  try {
     
-    } catch (error) {
-      return sendError(res, `Webhook Error: ${error.message}`, 400);
+    if (!session.metadata?.orderId) {
+      return sendError(res, "No orderId found", 400);
     }
+
+    const orderId = session.metadata.orderId;
+
+    if (event.type === "checkout.session.completed") {
+      await Order.findByIdAndUpdate(orderId, {
+        "payment.status": "paid",
+      });
+    }
+
+   
+    else if (event.type === "checkout.session.async_payment_failed") {
+      await Order.findByIdAndUpdate(orderId, {
+        "payment.status": "failed",
+      });
+    }
+
+   
+    else if (event.type === "checkout.session.expired") {
+      await Order.findByIdAndUpdate(orderId, {
+        "payment.status": "failed",
+      });
+    }
+
+  } catch (error) {
+    return sendError(res, `Webhook Error: ${error.message}`, 400);
   }
 
-  sendSuccess(res,"webhook received" ,200)
-  console.log("event received" ,event);
-  
-};
+  console.log("event received:", event.type);
 
+  return sendSuccess(res, "webhook received", 200);
+};
 
 
 module.exports = { checkOut ,webhook};
